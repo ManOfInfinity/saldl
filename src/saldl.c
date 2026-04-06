@@ -84,7 +84,11 @@ void saldl(saldl_params *params_ptr) {
 
   /* Library initializations, should run only once */
   SALDL_ASSERT(!curl_global_init(CURL_GLOBAL_ALL));
+#ifdef _WIN32
+  SALDL_ASSERT(!evthread_use_windows_threads());
+#else
   SALDL_ASSERT(!evthread_use_pthreads());
+#endif
 
   /* get/set initial info */
   main_msg("URL", "%s", params_ptr->start_url);

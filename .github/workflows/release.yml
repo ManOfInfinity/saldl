@@ -54,7 +54,7 @@ jobs:
             curl-dev curl-static libevent-dev libevent-static \
             openssl-dev openssl-libs-static nghttp2-dev nghttp2-static \
             zlib-dev zlib-static brotli-dev brotli-static \
-            c-ares-dev c-ares-static \
+            c-ares-dev \
             libidn2-dev libidn2-static libunistring-dev libunistring-static \
             nghttp3-dev zstd-dev zstd-static libpsl-dev libpsl-static
 
