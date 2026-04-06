@@ -56,13 +56,15 @@ jobs:
             zlib-dev zlib-static brotli-dev brotli-static \
             c-ares-dev \
             libidn2-dev libidn2-static libunistring-dev libunistring-static \
-            nghttp3-dev zstd-dev zstd-static libpsl-dev libpsl-static
+            zstd-dev zstd-static libpsl-dev libpsl-static
 
       - name: Mark git directory safe
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Configure
-        run: python3 waf configure --disable-man --no-werror --enable-static
+        run: |
+          export LDFLAGS="-static"
+          python3 waf configure --disable-man --no-werror --enable-static
 
       - name: Build
         run: python3 waf build
