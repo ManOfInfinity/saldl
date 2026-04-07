@@ -1,4 +1,13 @@
-# saldl 2.0
+```
+  ___  __ _| | __| | |
+ / __|/ _` | |/ _` | |
+ \__ \ (_| | | (_| | |
+ |___/\__,_|_|\__,_|_|  2.0
+```
+
+[![Release](https://img.shields.io/github/v/release/ManOfInfinity/saldl)](https://github.com/ManOfInfinity/saldl/releases)
+[![Build](https://img.shields.io/github/actions/workflow/status/ManOfInfinity/saldl/build.yml)](https://github.com/ManOfInfinity/saldl/actions)
+[![License: AGPL](https://img.shields.io/badge/License-AGPL-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 A fast, multi-platform command-line downloader optimized for speed, based on libcurl.
 
