@@ -167,7 +167,7 @@ jobs:
             --enable-link-optimizations \
             --saldl-version="$(git describe --tags --long --dirty 2>/dev/null || echo '2.0')" \
             --libcurl-cflags "-I${PREFIX}/include -DCURL_STATICLIB" \
-            --libcurl-libs "-L${PREFIX}/lib -lcurl -lssl -lcrypto -lz -lws2_32 -lcrypt32 -lbcrypt -ladvapi32" \
+            --libcurl-libs "-L${PREFIX}/lib -lcurl -lssl -lcrypto -lz -lws2_32 -lcrypt32 -lbcrypt -ladvapi32 -liphlpapi" \
             --libevent-pthreads-cflags "-I${PREFIX}/include" \
             --libevent-pthreads-libs "-L${PREFIX}/lib -levent -levent_core"
 
