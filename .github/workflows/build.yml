@@ -128,11 +128,12 @@ jobs:
       - name: Build
         run: python3 waf build
 
-      - name: Collect DLLs
+      - name: Collect DLLs and CA certs
         run: |
-          mkdir -p dist
+          mkdir -p dist/etc/ssl/certs
           cp build/saldl.exe dist/
           ldd build/saldl.exe | grep ucrt64 | awk '{print $3}' | xargs -I{} cp {} dist/
+          cp /ucrt64/etc/ssl/certs/ca-bundle.crt dist/etc/ssl/certs/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
