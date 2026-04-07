@@ -162,16 +162,17 @@ jobs:
       - name: Configure saldl
         run: |
           export CC=${HOST}-gcc
-          export PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig
-          python3 waf configure --disable-man --no-werror \
+          export LINKFLAGS_SAL="-L${PREFIX}/lib -static"
+          python3 waf configure --disable-man --no-werror --enable-static \
+            --enable-link-optimizations \
             --saldl-version="$(git describe --tags --long --dirty 2>/dev/null || echo '2.0')" \
             --libcurl-cflags "-I${PREFIX}/include -DCURL_STATICLIB" \
             --libcurl-libs "-L${PREFIX}/lib -lcurl -lssl -lcrypto -lz -lws2_32 -lcrypt32 -lbcrypt -ladvapi32" \
             --libevent-pthreads-cflags "-I${PREFIX}/include" \
-            --libevent-pthreads-libs "-L${PREFIX}/lib -levent -levent_core -lpthread"
+            --libevent-pthreads-libs "-L${PREFIX}/lib -levent -levent_core"
 
       - name: Build saldl
-        run: python3 waf build
+        run: python3 waf build -v
 
       - name: Verify
         run: |
