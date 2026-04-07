@@ -138,7 +138,7 @@ jobs:
           ./configure --host=${HOST} --prefix=${PREFIX} \
             --disable-shared --enable-static \
             --with-schannel --with-zlib=${PREFIX} \
-            --without-ssl \
+            --without-openssl \
             --disable-ldap --disable-ldaps --disable-rtsp \
             --disable-dict --disable-telnet --disable-tftp \
             --disable-pop3 --disable-imap --disable-smb \
