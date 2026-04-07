@@ -557,6 +557,26 @@ int main(int argc,char **argv) {
   SetConsoleOutputCP(65001);
 #endif
 
+#if !defined(__CYGWIN__) && !defined(__MSYS__) && defined(HAVE_GETMODULEFILENAME)
+  /* Set CA bundle path relative to exe for portable Windows builds */
+  if (!getenv("CURL_CA_BUNDLE")) {
+    char *exe_dir = windows_exe_path();
+    if (exe_dir) {
+      char ca_path[PATH_MAX];
+      snprintf(ca_path, PATH_MAX, "%s\\etc\\ssl\\certs\\ca-bundle.crt", exe_dir);
+      /* Only set if the file actually exists */
+      FILE *f = fopen(ca_path, "r");
+      if (f) {
+        fclose(f);
+        char env_str[PATH_MAX + 20];
+        snprintf(env_str, sizeof(env_str), "CURL_CA_BUNDLE=%s", ca_path);
+        _putenv(env_str);
+      }
+      free(exe_dir);
+    }
+  }
+#endif
+
   /* Initialize params */
   saldl_params params = DEF_SALDL_PARAMS;
 
