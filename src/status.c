@@ -68,43 +68,50 @@ static void render_progress_bar(info_s *info_ptr, progress_s *p) {
   format_size(rate_buf, sizeof(rate_buf), p->curr_rate > 0 ? p->curr_rate : p->rate);
   format_time(eta_buf, sizeof(eta_buf), p->curr_rem < (double)INT64_MAX ? p->curr_rem : p->rem);
 
-  /* Fixed bar width for consistent display */
-  int bar_width = 30;
-  if (cols > 120) bar_width = 40;
-  else if (cols < 60) bar_width = 15;
+  int bar_width = 50;
 
   int filled = (int)(pct * bar_width / 100.0);
   if (filled > bar_width) filled = bar_width;
+  bool is_complete = (p->complete_size == info_ptr->file_size && info_ptr->file_size > 0);
 
-  /* Render bar */
-  fprintf(stderr, "\r%s [", erase_after);
+  fprintf(stderr, "\r [");
 
-  if (filled > 0) {
-    fprintf(stderr, "%s", ok_color);
-    for (int i = 0; i < filled; i++) {
-      fprintf(stderr, BAR_FILL_CHAR);
+  if (is_complete) {
+    /* 100% — all green solid */
+    fprintf(stderr, "\033[32m");
+    for (int i = 0; i < bar_width; i++) fprintf(stderr, "=");
+    fprintf(stderr, "\033[0m");
+  } else {
+    /* Yellow filled with arrow */
+    if (filled > 0) {
+      fprintf(stderr, "\033[33m");
+      for (int i = 0; i < filled - 1; i++) fprintf(stderr, "=");
+      fprintf(stderr, ">");
+      fprintf(stderr, "\033[0m");
     }
-    fprintf(stderr, "%s", end);
+    /* Grey remaining — dense dashes: -- -- -- */
+    fprintf(stderr, "\033[90m");
+    for (int i = filled; i < bar_width; i++) {
+      fprintf(stderr, "%s", ((i - filled) % 3 == 2) ? " " : "-");
+    }
+    fprintf(stderr, "\033[0m");
   }
 
-  for (int i = filled; i < bar_width; i++) {
-    fprintf(stderr, BAR_EMPTY_CHAR);
-  }
-
-  /* Stats with fixed-width fields so display doesn't jump */
-  if (p->complete_size == info_ptr->file_size) {
+  /* Stats */
+  if (is_complete) {
     char dur_buf[32];
     format_time(dur_buf, sizeof(dur_buf), p->dur);
-    fprintf(stderr, "] %5.1f%% | %10s / %10s | %10s/s | %s",
+    fprintf(stderr, "] \033[32m%5.1f%%\033[0m  %s / %s  %s/s  %-8s",
         pct, size_done, size_total, rate_buf, dur_buf);
   } else if (p->rate > 0 || p->curr_rate > 0) {
-    fprintf(stderr, "] %5.1f%% | %10s / %10s | %10s/s | ETA %8s",
+    fprintf(stderr, "] \033[33m%5.1f%%\033[0m  %s / %s  %s/s  ETA %-8s",
         pct, size_done, size_total, rate_buf, eta_buf);
   } else {
-    fprintf(stderr, "] %5.1f%% | %10s / %10s",
+    fprintf(stderr, "] %5.1f%%  %s / %s                              ",
         pct, size_done, size_total);
   }
 
+  fprintf(stderr, "   ");
   fflush(stderr);
 }
 

@@ -1037,13 +1037,13 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
       }
 
       {
-        /* Modern progress bar for single mode */
+        /* Progress bar for single mode */
         double complete = (double)(dlnow + offset);
         double total = (double)info_ptr->file_size;
         double pct = total > 0 ? complete * 100.0 / total : 0;
         if (pct > 100.0) pct = 100.0;
 
-        int bar_width = 30;
+        int bar_width = 50;
         int filled = (int)(pct * bar_width / 100.0);
         if (filled > bar_width) filled = bar_width;
 
@@ -1057,16 +1057,28 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
         snprintf(rate_buf, sizeof(rate_buf), "%.2f%s",
             human_size(display_rate), human_size_suffix(display_rate));
 
-        fprintf(stderr, "\r%s [", erase_after);
-        if (filled > 0) {
-          fprintf(stderr, "%s", ok_color);
-          for (int i = 0; i < filled; i++) fprintf(stderr, "\xe2\x96\x88");
-          fprintf(stderr, "%s", end);
-        }
-        for (int i = filled; i < bar_width; i++) fprintf(stderr, "\xe2\x96\x91");
+        int is_done = (dlnow + offset >= info_ptr->file_size && info_ptr->file_size > 0);
 
-        if (dlnow + offset >= info_ptr->file_size && info_ptr->file_size > 0) {
-          fprintf(stderr, "] %5.1f%% | %10s / %10s | %10s/s | %.0fs",
+        fprintf(stderr, "\r [");
+        if (is_done) {
+          fprintf(stderr, "\033[32m");
+          for (int i = 0; i < bar_width; i++) fprintf(stderr, "=");
+          fprintf(stderr, "\033[0m");
+        } else {
+          if (filled > 0) {
+            fprintf(stderr, "\033[33m");
+            for (int i = 0; i < filled - 1; i++) fprintf(stderr, "=");
+            fprintf(stderr, ">");
+            fprintf(stderr, "\033[0m");
+          }
+          fprintf(stderr, "\033[90m");
+          for (int i = filled; i < bar_width; i++)
+            fprintf(stderr, "%s", ((i - filled) % 3 == 2) ? " " : "-");
+          fprintf(stderr, "\033[0m");
+        }
+
+        if (is_done) {
+          fprintf(stderr, "] \033[32m%5.1f%%\033[0m  %s / %s  %s/s  %-8.0fs",
               pct, size_done, size_total, rate_buf, p->dur);
         } else if (display_rate > 0) {
           double eta = p->curr_rem < (double)INT64_MAX ? p->curr_rem : p->rem;
@@ -1074,12 +1086,13 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
           if (eta >= 3600) snprintf(eta_buf, sizeof(eta_buf), "%dh%02dm%02ds", (int)(eta/3600), ((int)eta%3600)/60, (int)eta%60);
           else if (eta >= 60) snprintf(eta_buf, sizeof(eta_buf), "%dm%02ds", (int)(eta/60), (int)eta%60);
           else snprintf(eta_buf, sizeof(eta_buf), "%.0fs", eta);
-          fprintf(stderr, "] %5.1f%% | %10s / %10s | %10s/s | ETA %8s",
+          fprintf(stderr, "] \033[33m%5.1f%%\033[0m  %s / %s  %s/s  ETA %-8s",
               pct, size_done, size_total, rate_buf, eta_buf);
         } else {
-          fprintf(stderr, "] %5.1f%% | %10s / %10s",
+          fprintf(stderr, "] %5.1f%%  %s / %s                              ",
               pct, size_done, size_total);
         }
+        fprintf(stderr, "   ");
         fflush(stderr);
       }
     }
