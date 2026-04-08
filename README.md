@@ -107,8 +107,7 @@ To build without the man page:
 
 ## Credits
 
-Originally created by [Mohammad AlSaleh](https://github.com/saldl/saldl) (2014-2016).
-Now maintained by [ManOfInfinity](https://github.com/ManOfInfinity).
+Based on [saldl](https://github.com/saldl/saldl), improved and now actively maintained by [ManOfInfinity](https://github.com/ManOfInfinity).
 
 ## License
 
