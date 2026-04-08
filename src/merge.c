@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -21,7 +21,7 @@
 
 static void merge_finished_cb(evutil_socket_t fd, short what, void *arg) {
   info_s *info_ptr = arg;
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
   event_s *ev_merge = &info_ptr->ev_merge;
 
   debug_event_msg(FN, "callback no. %"SAL_JU" for triggered event %s, with what %d", ++ev_merge->num_of_calls, str_EVENT_FD(fd) , what);
@@ -55,7 +55,7 @@ void* merger_thread(void *void_info_ptr) {
   info_s *info_ptr = (info_s*)void_info_ptr;
 
   /* Thread entered */
-  SALDL_ASSERT(info_ptr->ev_merge.event_status == EVENT_NULL);
+  INFIDL_ASSERT(info_ptr->ev_merge.event_status == EVENT_NULL);
   info_ptr->ev_merge.event_status = EVENT_THREAD_STARTED;
 
   /* event loop */

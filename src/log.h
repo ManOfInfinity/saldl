@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -17,10 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SALDL_LOG_H
-#define SALDL_LOG_H
+#ifndef INFIDL_LOG_H
+#define INFIDL_LOG_H
 #else
-#error redefining SALDL_LOG_H
+#error redefining INFIDL_LOG_H
 #endif
 
 #include "defaults.h"
@@ -41,7 +41,7 @@
 #define MAX_VERBOSITY 7
 #define MAX_NO_COLOR 2
 
-#define SALDL_PRINTF_FORMAT printf
+#define INFIDL_PRINTF_FORMAT printf
 
 #ifdef __MINGW32__
 #define SAL_JD "I64d"
@@ -60,13 +60,13 @@
 #endif
 
 #define STR(s) #s
-#define SALDL_ASSERT(cond) \
+#define INFIDL_ASSERT(cond) \
   do {\
     if (!(cond)) {\
       pre_fatal(FL, "Assert[%s/%d]: %s", FN, LN, STR((cond)));\
-      /* We don't use saldl_fputs() to avoid recursive assertions */ \
-      pre_fatal(NULL, "Your system is in bad shape, or this could be a bug in saldl.");\
-      fatal_abort(NULL, "Please file a bug report: %s", SALDL_BUG);\
+      /* We don't use infidl_fputs() to avoid recursive assertions */ \
+      pre_fatal(NULL, "Your system is in bad shape, or this could be a bug in infidl.");\
+      fatal_abort(NULL, "Please file a bug report: %s", INFIDL_BUG);\
     }\
   } while(0)
 
@@ -105,7 +105,7 @@ char warn_msg_prefix[256];
 char error_msg_prefix[256];
 char fatal_msg_prefix[256];
 
-typedef void(log_func)(const char*, const char*, ...) __attribute__(( format(SALDL_PRINTF_FORMAT,2,3) ));
+typedef void(log_func)(const char*, const char*, ...) __attribute__(( format(INFIDL_PRINTF_FORMAT,2,3) ));
 
 log_func *debug_event_msg;
 log_func *debug_msg;

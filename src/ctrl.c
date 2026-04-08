@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -21,7 +21,7 @@
 #include "ctrl.h"
 
 void ctrl_cleanup_info(ctrl_info_s *ctrl) {
-  SALDL_FREE(ctrl->chunks_progress_str);
+  INFIDL_FREE(ctrl->chunks_progress_str);
 }
 
 void ctrl_get_info(char *ctrl_filename, ctrl_info_s *ctrl) {
@@ -36,8 +36,8 @@ void ctrl_get_info(char *ctrl_filename, ctrl_info_s *ctrl) {
     fatal(FN, "Opening %s failed, even though it exists.", ctrl_filename);
   }
 
-  off_t ctrl_fsize = saldl_fsizeo(ctrl_filename, f_ctrl);
-  SALDL_ASSERT((uintmax_t)ctrl_fsize <= SIZE_MAX);
+  off_t ctrl_fsize = infidl_fsizeo(ctrl_filename, f_ctrl);
+  INFIDL_ASSERT((uintmax_t)ctrl_fsize <= SIZE_MAX);
 
   if (!ctrl_fsize) {
     fatal(FN, "ctrl file is empty.");
@@ -49,7 +49,7 @@ void ctrl_get_info(char *ctrl_filename, ctrl_info_s *ctrl) {
     char ctrl_rem_size_str[u_num_digits(SIZE_MAX)];
 
     /* ctrl_fsize guarantees allocating enough bytes */
-    ctrl->chunks_progress_str = saldl_calloc((size_t)ctrl_fsize, sizeof(char) );
+    ctrl->chunks_progress_str = infidl_calloc((size_t)ctrl_fsize, sizeof(char) );
 
     char *ret_fgets1 = fgets(ctrl_file_size_str, s_num_digits(OFF_T_MAX), f_ctrl);
     char *ret_fgets2 = fgets(ctrl_chunk_size_str, u_num_digits(SIZE_MAX), f_ctrl);
@@ -90,7 +90,7 @@ void ctrl_get_info(char *ctrl_filename, ctrl_info_s *ctrl) {
     info_msg(FN, " chunk_count: %"SAL_ZU"", ctrl->chunk_count);
     info_msg(FN, " chunks_progress_str: %s", ctrl->chunks_progress_str);
   }
-  saldl_fclose(ctrl_filename, f_ctrl);
+  infidl_fclose(ctrl_filename, f_ctrl);
 }
 
 static void ctrl_update_cb(evutil_socket_t fd, short what, void *arg) {
@@ -114,12 +114,12 @@ static void ctrl_update_cb(evutil_socket_t fd, short what, void *arg) {
     memset(&ctrl->raw_status[counter], '0' + info_ptr->chunks[counter].progress, 1);
   }
 
-  saldl_fseeko(info_ptr->ctrl_filename, info_ptr->ctrl_file, ctrl->pos, SEEK_SET);
+  infidl_fseeko(info_ptr->ctrl_filename, info_ptr->ctrl_file, ctrl->pos, SEEK_SET);
 
-  saldl_fputs(ctrl->raw_status, info_ptr->ctrl_file, info_ptr->ctrl_filename);
-  saldl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  infidl_fputs(ctrl->raw_status, info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  infidl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
 
-  saldl_fflush(info_ptr->ctrl_filename, info_ptr->ctrl_file);
+  infidl_fflush(info_ptr->ctrl_filename, info_ptr->ctrl_file);
 }
 
 void* sync_ctrl(void *void_info_ptr) {
@@ -127,12 +127,12 @@ void* sync_ctrl(void *void_info_ptr) {
   control_s *ctrl = &info_ptr->ctrl;
 
   /* Thread entered */
-  SALDL_ASSERT(info_ptr->ev_ctrl.event_status == EVENT_NULL);
+  INFIDL_ASSERT(info_ptr->ev_ctrl.event_status == EVENT_NULL);
   info_ptr->ev_ctrl.event_status = EVENT_THREAD_STARTED;
 
   /* Initialize ctrl */
-  /* +1 because saldl_fputs() needs \0 termination to know where to stop */
-  ctrl->raw_status = saldl_calloc(info_ptr->chunk_count + 1, sizeof(char));
+  /* +1 because infidl_fputs() needs \0 termination to know where to stop */
+  ctrl->raw_status = infidl_calloc(info_ptr->chunk_count + 1, sizeof(char));
   memset(ctrl->raw_status,'0', info_ptr->chunk_count);
   ctrl->pos = 0; // redundant?
 
@@ -140,21 +140,21 @@ void* sync_ctrl(void *void_info_ptr) {
   char char_file_size[s_num_digits(OFF_T_MAX)];
   char char_chunk_size[u_num_digits(SIZE_MAX)];
   char char_rem_size[u_num_digits(SIZE_MAX)];
-  saldl_snprintf(false, char_file_size, s_num_digits(OFF_T_MAX), "%"SAL_JD"", (intmax_t)info_ptr->file_size);
-  saldl_snprintf(false, char_chunk_size, u_num_digits(SIZE_MAX), "%"SAL_ZU"", info_ptr->params->chunk_size);
-  saldl_snprintf(false, char_rem_size, u_num_digits(SIZE_MAX), "%"SAL_ZU"", info_ptr->rem_size);
+  infidl_snprintf(false, char_file_size, s_num_digits(OFF_T_MAX), "%"SAL_JD"", (intmax_t)info_ptr->file_size);
+  infidl_snprintf(false, char_chunk_size, u_num_digits(SIZE_MAX), "%"SAL_ZU"", info_ptr->params->chunk_size);
+  infidl_snprintf(false, char_rem_size, u_num_digits(SIZE_MAX), "%"SAL_ZU"", info_ptr->rem_size);
 
   /* Rewind ctrl_file */
-  saldl_fseeko(info_ptr->ctrl_filename, info_ptr->ctrl_file, 0, SEEK_SET);
+  infidl_fseeko(info_ptr->ctrl_filename, info_ptr->ctrl_file, 0, SEEK_SET);
 
   /* Start writing in ctrl_file */
-  saldl_fputs(char_file_size, info_ptr->ctrl_file, info_ptr->ctrl_filename);
-  saldl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
-  saldl_fputs(char_chunk_size, info_ptr->ctrl_file, info_ptr->ctrl_filename);
-  saldl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
-  saldl_fputs(char_rem_size, info_ptr->ctrl_file, info_ptr->ctrl_filename);
-  saldl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
-  ctrl->pos = saldl_ftello(info_ptr->ctrl_filename, info_ptr->ctrl_file);
+  infidl_fputs(char_file_size, info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  infidl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  infidl_fputs(char_chunk_size, info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  infidl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  infidl_fputs(char_rem_size, info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  infidl_fputc('\n', info_ptr->ctrl_file, info_ptr->ctrl_filename);
+  ctrl->pos = infidl_ftello(info_ptr->ctrl_filename, info_ptr->ctrl_file);
 
   /* event loop */
   events_init(&info_ptr->ev_ctrl, ctrl_update_cb, info_ptr, EVENT_CTRL);
@@ -168,7 +168,7 @@ void* sync_ctrl(void *void_info_ptr) {
   events_deinit(&info_ptr->ev_ctrl);
 
   /* finalize and cleanup */
-  SALDL_FREE(ctrl->raw_status);
+  INFIDL_FREE(ctrl->raw_status);
   return info_ptr;
 }
 

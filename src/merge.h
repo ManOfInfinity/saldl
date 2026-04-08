@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -17,10 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SALDL_MERGE_H
-#define SALDL_MERGE_H
+#ifndef INFIDL_MERGE_H
+#define INFIDL_MERGE_H
 #else
-#error redefining SALDL_MERGE_H
+#error redefining INFIDL_MERGE_H
 #endif
 
 void* merger_thread(void *void_info_ptr);

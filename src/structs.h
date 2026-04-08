@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -17,10 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SALDL_STRUCTS_H
-#define SALDL_STRUCTS_H
+#ifndef INFIDL_STRUCTS_H
+#define INFIDL_STRUCTS_H
 #else
-#error redefining SALDL_STRUCTS_H
+#error redefining INFIDL_STRUCTS_H
 #endif
 
 #include <pthread.h>
@@ -29,7 +29,7 @@
 
 #include <curl/curl.h>
 
-#include "saldl_params.h"
+#include "infidl_params.h"
 
 /* enum for event status */
 enum EVENT_STATUS {
@@ -179,7 +179,7 @@ typedef struct {
 
 /* info_s: mother of all structs */
 typedef struct {
-  saldl_params *params;
+  infidl_params *params;
   curl_version_info_data *curl_info;
   file_s storage_info;
   void (*prepare_storage)();

@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -49,8 +49,8 @@ static void extra_resume(info_s *info_ptr, char* chunks_progress_str) {
             break;
           }
 
-          saldl_snprintf(false, idx_filename, PATH_MAX, "%s/%"SAL_ZU"", info_ptr->tmp_dirname, idx);
-          tmpf_size = saldl_fsize_sys(idx_filename);
+          infidl_snprintf(false, idx_filename, PATH_MAX, "%s/%"SAL_ZU"", info_ptr->tmp_dirname, idx);
+          tmpf_size = infidl_fsize_sys(idx_filename);
 
           if (tmpf_size == (size_t)-1) {
             debug_msg(FN, "Can't stat %s, the file does not exist! This could be caused by using mem bufs or unsynced ctrl file.", idx_filename);
@@ -61,7 +61,7 @@ static void extra_resume(info_s *info_ptr, char* chunks_progress_str) {
             fatal(FN, "%s size exceeds chunk_size!! (size=%"SAL_ZU", chunk_size=%"SAL_ZU")", idx_filename, tmpf_size, info_ptr->chunks[idx].size);
           }
 
-          info_ptr->chunks[idx].size_complete = saldl_max(4096, tmpf_size) - 4096 ; /* -4096 in case last bits are corrupted */
+          info_ptr->chunks[idx].size_complete = infidl_max(4096, tmpf_size) - 4096 ; /* -4096 in case last bits are corrupted */
           debug_msg(FN, "chunk %"SAL_ZU" was incomplete or unmerged in a previous run (Progress: %"SAL_ZU"/%"SAL_ZU").", idx, info_ptr->chunks[idx].size_complete, info_ptr->chunks[idx].size);
           break;
         }
@@ -88,10 +88,10 @@ static off_t resume_was_single(info_s *info_ptr) {
 
   if ( ( f_part = fopen(info_ptr->part_filename, "rb") ) ) {
     /* -4096 in case last bits are corrupted */
-    done_size  = saldl_max_o(4096, saldl_fsizeo(info_ptr->part_filename, f_part)) - 4096;
+    done_size  = infidl_max_o(4096, infidl_fsizeo(info_ptr->part_filename, f_part)) - 4096;
     info_ptr->initial_merged_count = (size_t)(done_size / info_ptr->params->chunk_size);
     info_msg(FN, " done_size:  %"SAL_JD" (based on the size of %s)", (intmax_t)done_size, info_ptr->part_filename);
-    saldl_fclose(info_ptr->part_filename, f_part);
+    infidl_fclose(info_ptr->part_filename, f_part);
   }
 
   return done_size;
@@ -103,7 +103,7 @@ static off_t resume_was_default(info_s *info_ptr, ctrl_info_s *ctrl) {
   char STR_PRG_MERGED[] = {CH_PRG_MERGED , '\0'};
   size_t merged_cont = strspn(ctrl->chunks_progress_str, STR_PRG_MERGED);
 
-  SALDL_ASSERT(merged_cont <= ctrl->chunk_count);
+  INFIDL_ASSERT(merged_cont <= ctrl->chunk_count);
 
   if (merged_cont == ctrl->chunk_count) {
     done_size = ctrl->file_size;
@@ -117,7 +117,7 @@ static off_t resume_was_default(info_s *info_ptr, ctrl_info_s *ctrl) {
 
 void check_resume(info_s *info_ptr) {
   ctrl_info_s ctrl;
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   if (params_ptr->read_only || params_ptr->to_stdout) {
     warn_msg(FN, "resume does not work if read-only or piping to stdout, disabling..");
@@ -148,7 +148,7 @@ void check_resume(info_s *info_ptr) {
     done_size = resume_was_default(info_ptr, &ctrl);
   }
 
-  SALDL_ASSERT(done_size <= info_ptr->file_size);
+  INFIDL_ASSERT(done_size <= info_ptr->file_size);
   info_msg(FN, " done_size:  %"SAL_JD"", (intmax_t)done_size);
 
   for (size_t idx=0; idx<info_ptr->initial_merged_count; idx++) {
@@ -183,7 +183,7 @@ void check_resume(info_s *info_ptr) {
   /* Correct num_connections if remaining chunks are not as many */
   size_t orig_num_connections = info_ptr->params->num_connections;
   size_t rem_chunks = info_ptr->chunk_count - info_ptr->initial_merged_count;
-  info_ptr->params->num_connections = saldl_min(orig_num_connections, rem_chunks);
+  info_ptr->params->num_connections = infidl_min(orig_num_connections, rem_chunks);
 
   if (info_ptr->params->num_connections  != orig_num_connections ) {
     local_info_msg(FN, "Remaining data after resume relatively small, use %"SAL_ZU" connection(s)...", info_ptr->params->num_connections);

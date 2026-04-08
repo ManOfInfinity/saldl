@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -101,13 +101,13 @@ static void render_progress_bar(info_s *info_ptr, progress_s *p) {
   if (is_complete) {
     char dur_buf[32];
     format_time(dur_buf, sizeof(dur_buf), p->dur);
-    fprintf(stderr, "] \033[32m%5.1f%%\033[0m  %s / %s  %s/s  %-8s",
+    fprintf(stderr, "] \033[32m%5.1f%%\033[0m | %s / %s | %s/s | %-8s",
         pct, size_done, size_total, rate_buf, dur_buf);
   } else if (p->rate > 0 || p->curr_rate > 0) {
-    fprintf(stderr, "] \033[33m%5.1f%%\033[0m  %s / %s  %s/s  ETA %-8s",
+    fprintf(stderr, "] \033[33m%5.1f%%\033[0m | %s / %s | %s/s | ETA %-8s",
         pct, size_done, size_total, rate_buf, eta_buf);
   } else {
-    fprintf(stderr, "] %5.1f%%  %s / %s                              ",
+    fprintf(stderr, "] %5.1f%% | %s / %s | --.-/s | ETA --:--   ",
         pct, size_done, size_total);
   }
 
@@ -117,14 +117,14 @@ static void render_progress_bar(info_s *info_ptr, progress_s *p) {
 
 static void status_update_cb(evutil_socket_t fd, short what, void *arg) {
   info_s *info_ptr = arg;
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   progress_s *p = &(info_ptr->global_progress);
   status_s *status_ptr = &info_ptr->status;
   event_s *ev_status = &info_ptr->ev_status;
 
   double params_refresh = params_ptr->status_refresh_interval;
-  double refresh_interval = params_refresh ? params_refresh : SALDL_DEF_STATUS_REFRESH_INTERVAL;
+  double refresh_interval = params_refresh ? params_refresh : INFIDL_DEF_STATUS_REFRESH_INTERVAL;
 
   /* Update number of lines in case tty width changes */
   int cols = tty_width() >= 0 ? tty_width() : 0;
@@ -137,7 +137,7 @@ static void status_update_cb(evutil_socket_t fd, short what, void *arg) {
     events_deactivate(ev_status);
   }
 
-  p->curr = saldl_utime();
+  p->curr = infidl_utime();
   p->dur = p->curr - p->start;
   p->curr_dur = p->curr - p->prev;
   global_progress_update(info_ptr, false);
@@ -147,19 +147,19 @@ static void status_update_cb(evutil_socket_t fd, short what, void *arg) {
     return;
   }
 
-  off_t session_complete_size = saldl_max_o(p->complete_size - p->initial_complete_size, 0);
+  off_t session_complete_size = infidl_max_o(p->complete_size - p->initial_complete_size, 0);
   off_t rem_size = info_ptr->file_size - p->complete_size;
 
   /* Calculate rates, remaining times */
-  if (p->dur >= SALDL_STATUS_INITIAL_INTERVAL) {
+  if (p->dur >= INFIDL_STATUS_INITIAL_INTERVAL) {
     p->rate = session_complete_size/p->dur;
     p->rem = p->rate ? rem_size/p->rate : (double)INT64_MAX;
   }
 
   if (p->curr_dur >= refresh_interval ||
-      (p->dur  >= SALDL_STATUS_INITIAL_INTERVAL && p->dur < refresh_interval) ||
+      (p->dur  >= INFIDL_STATUS_INITIAL_INTERVAL && p->dur < refresh_interval) ||
       p->complete_size == info_ptr->file_size) {
-    off_t curr_complete_size = saldl_max_o(p->complete_size - p->dlprev, 0);
+    off_t curr_complete_size = infidl_max_o(p->complete_size - p->dlprev, 0);
     p->curr_rate = curr_complete_size/p->curr_dur;
     p->curr_rem = p->curr_rate ? rem_size/p->curr_rate : (double)INT64_MAX;
 
@@ -176,12 +176,12 @@ void* status_display(void *void_info_ptr) {
   status_s *status_ptr = &info_ptr->status;
 
   /* Thread entered */
-  SALDL_ASSERT(info_ptr->ev_status.event_status == EVENT_NULL);
+  INFIDL_ASSERT(info_ptr->ev_status.event_status == EVENT_NULL);
   info_ptr->ev_status.event_status = EVENT_THREAD_STARTED;
 
   /* initialize status */
   status_ptr->c_char_size = 1;
-  status_ptr->chunks_status = saldl_calloc(1, sizeof(char));
+  status_ptr->chunks_status = infidl_calloc(1, sizeof(char));
 
   int cols = tty_width() >= 0 ? tty_width() : 0;
   status_ptr->lines = num_of_lines(info_ptr, cols);
@@ -189,7 +189,7 @@ void* status_display(void *void_info_ptr) {
   /* event loop */
   events_init(&info_ptr->ev_status, status_update_cb, info_ptr, EVENT_STATUS);
 
-  SALDL_ASSERT(info_ptr->global_progress.initialized);
+  INFIDL_ASSERT(info_ptr->global_progress.initialized);
 
   if (info_ptr->session_status != SESSION_INTERRUPTED && exist_prg(info_ptr, PRG_MERGED, false)) {
     debug_msg(FN, "Start ev_status loop.");
@@ -204,7 +204,7 @@ void* status_display(void *void_info_ptr) {
     fprintf(stderr, "\n");
   }
 
-  SALDL_FREE(status_ptr->chunks_status);
+  INFIDL_FREE(status_ptr->chunks_status);
   return info_ptr;
 }
 

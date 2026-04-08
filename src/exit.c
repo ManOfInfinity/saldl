@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -29,19 +29,19 @@ void sig_handler(int sig) {
 #endif
 }
 
-void saldl_handle_signals() {
+void infidl_handle_signals() {
 #ifdef HAVE_SIGACTION
     struct sigaction sa;
 
-    saldl_sigemptyset(&sa.sa_mask);
+    infidl_sigemptyset(&sa.sa_mask);
     sa.sa_handler = sig_handler;
     sa.sa_flags = SA_RESTART;
 
-    saldl_sigaction(SIGINT, &sa, NULL);
-    saldl_sigaction(SIGTERM, &sa, NULL);
+    infidl_sigaction(SIGINT, &sa, NULL);
+    infidl_sigaction(SIGTERM, &sa, NULL);
 #else
-    saldl_win_signal(SIGINT, sig_handler);
-    saldl_win_signal(SIGTERM, sig_handler);
+    infidl_win_signal(SIGINT, sig_handler);
+    infidl_win_signal(SIGTERM, sig_handler);
 #endif
 }
 
@@ -61,7 +61,7 @@ void exit_routine() {
     }
 
     /* We don't want any interruptions */
-    saldl_block_sig_pth();
+    infidl_block_sig_pth();
 
     if (info_global->session_status >= SESSION_IN_PROGRESS) {
       /* Interrupt & stop queue events 1st */

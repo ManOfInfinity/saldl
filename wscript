@@ -35,7 +35,7 @@ def options(opt):
     def_chunk_size = def_chunk_size_mib * 1024 * 1024 # 1 MiB
     conf_gr.add_option(
             '--default-chunk-size',
-            dest = 'SALDL_DEF_CHUNK_SIZE',
+            dest = 'INFIDL_DEF_CHUNK_SIZE',
             default = str(def_chunk_size),
             action = 'store',
             help = "Set default chunk size in bytes. (default: %s (%s MiB))." % (def_chunk_size, def_chunk_size_mib)
@@ -44,19 +44,19 @@ def options(opt):
     def_num_connections = 6
     conf_gr.add_option(
             '--default-num-connections',
-            dest = 'SALDL_DEF_NUM_CONNECTIONS',
+            dest = 'INFIDL_DEF_NUM_CONNECTIONS',
             default = str(def_num_connections),
             action = 'store',
             help = "Set default number of connections. (default: %s)." % def_num_connections
             )
 
-    def_saldl_version = None # Use git describe
+    def_infidl_version = '2.5' # Default version
     conf_gr.add_option(
-            '--saldl-version',
-            dest = 'SALDL_VERSION',
-            default = def_saldl_version,
+            '--infidl-version',
+            dest = 'INFIDL_VERSION',
+            default = def_infidl_version,
             action= "store",
-            help = "Set version manually, passing nothing or empty string falls back to git describe. (default: %s)." % def_saldl_version
+            help = "Set version manually, passing nothing or empty string falls back to git describe. (default: %s)." % def_infidl_version
             )
 
     def_a2x = 'a2x'
@@ -196,21 +196,21 @@ def options(opt):
 #------------------------------------------------------------------------------
 
 @conf
-def get_saldl_version(conf):
+def get_infidl_version(conf):
 
-    if conf.options.SALDL_VERSION and len(conf.options.SALDL_VERSION):
-        conf.start_msg('Get saldl version from configure option:')
-        saldl_version = conf.options.SALDL_VERSION
-        conf.end_msg(saldl_version)
-        conf.env.append_value('DEFINES', 'SALDL_VERSION="%s"' % saldl_version)
+    if conf.options.INFIDL_VERSION and len(conf.options.INFIDL_VERSION):
+        conf.start_msg('Get infidl version from configure option:')
+        infidl_version = conf.options.INFIDL_VERSION
+        conf.end_msg(infidl_version)
+        conf.env.append_value('DEFINES', 'INFIDL_VERSION="%s"' % infidl_version)
     else:
-        conf.start_msg('Get saldl version from GIT')
+        conf.start_msg('Get infidl version from GIT')
 
         try:
             git_ver_cmd = ['git', 'describe', '--tags', '--long', '--dirty']
-            saldl_version = conf.cmd_and_log(git_ver_cmd).rstrip().replace('-', '.')
-            conf.end_msg(saldl_version)
-            conf.env.append_value('DEFINES', 'SALDL_VERSION="%s"' % saldl_version)
+            infidl_version = conf.cmd_and_log(git_ver_cmd).rstrip().replace('-', '.')
+            conf.end_msg(infidl_version)
+            conf.env.append_value('DEFINES', 'INFIDL_VERSION="%s"' % infidl_version)
         except:
             conf.end_msg('(failed)')
 
@@ -239,11 +239,11 @@ def set_defines(conf):
     conf.env.append_value('DEFINES', '_FILE_OFFSET_BITS=64')
     conf.env.append_value('DEFINES', '_GNU_SOURCE')
 
-    if conf.options.SALDL_DEF_NUM_CONNECTIONS:
-        conf.env.append_value('DEFINES', 'SALDL_DEF_NUM_CONNECTIONS=' + conf.options.SALDL_DEF_NUM_CONNECTIONS)
+    if conf.options.INFIDL_DEF_NUM_CONNECTIONS:
+        conf.env.append_value('DEFINES', 'INFIDL_DEF_NUM_CONNECTIONS=' + conf.options.INFIDL_DEF_NUM_CONNECTIONS)
 
-    if conf.options.SALDL_DEF_CHUNK_SIZE:
-        conf.env.append_value('DEFINES', 'SALDL_DEF_CHUNK_SIZE=' + conf.options.SALDL_DEF_CHUNK_SIZE)
+    if conf.options.INFIDL_DEF_CHUNK_SIZE:
+        conf.env.append_value('DEFINES', 'INFIDL_DEF_CHUNK_SIZE=' + conf.options.INFIDL_DEF_CHUNK_SIZE)
 
 @conf
 def check_func(conf, f_name, h_name, mandatory):
@@ -666,7 +666,7 @@ def check_pkg(conf, pkg_name, check_args, min_ver):
 #------------------------------------------------------------------------------
 
 def configure(conf):
-    get_saldl_version(conf)
+    get_infidl_version(conf)
     prep_man(conf)
     check_flags(conf)
     set_defines(conf)
@@ -692,20 +692,20 @@ def build(bld):
                 'src/log.c',
                 'src/utime.c',
                 'src/transfer.c',
-                'src/saldl.c',
+                'src/infidl.c',
                 ],
-            target = ['saldl-objs']
+            target = ['infidl-objs']
             )
 
     bld.program(
-            use = ['saldl-objs'],
+            use = ['infidl-objs'],
             source = ['src/main.c'],
-            target = 'saldl'
+            target = 'infidl'
             )
 
     if not bld.env['DISABLE_MAN']:
         bld(
-                source = ['saldl.1.txt'],
+                source = ['infidl.1.txt'],
                 )
 
 

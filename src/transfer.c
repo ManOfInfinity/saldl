@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -30,8 +30,8 @@
 static void set_date_cond(CURL *handle, char *time_str) {
   time_t date;
 
-  SALDL_ASSERT(handle);
-  SALDL_ASSERT(time_str);
+  INFIDL_ASSERT(handle);
+  INFIDL_ASSERT(time_str);
 
   if (time_str[0] == '-') {
     curl_easy_setopt(handle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFUNMODSINCE);
@@ -53,10 +53,10 @@ static void set_date_cond(CURL *handle, char *time_str) {
 static void set_date_cond_from_file(CURL *handle, char *file_path) {
   time_t date;
 
-  SALDL_ASSERT(handle);
-  SALDL_ASSERT(file_path);
+  INFIDL_ASSERT(handle);
+  INFIDL_ASSERT(file_path);
 
-  date = saldl_file_mtime(file_path);
+  date = infidl_file_mtime(file_path);
 
   if (date < 0) {
     warn_msg(FN, "Getting mtime of \"%s\" failed, %s.", file_path, strerror(errno));
@@ -75,7 +75,7 @@ static void set_date_cond_from_file(CURL *handle, char *file_path) {
 
 static void exit_if_date_cond(CURL *handle) {
   long cond_unmet;
-  SALDL_ASSERT(handle);
+  INFIDL_ASSERT(handle);
 
   curl_easy_getinfo(handle, CURLINFO_CONDITION_UNMET, &cond_unmet);
 
@@ -85,7 +85,7 @@ static void exit_if_date_cond(CURL *handle) {
 }
 
 static void set_inline_cookies(CURL *handle, char *cookie_str) {
-  char *copy_cookie_str = saldl_strdup(cookie_str);
+  char *copy_cookie_str = infidl_strdup(cookie_str);
   char *curr = copy_cookie_str, *next = NULL, *sep = NULL, *cookie = NULL;
   do {
     sep = strstr(curr, ";");
@@ -95,31 +95,31 @@ static void set_inline_cookies(CURL *handle, char *cookie_str) {
       sep[0] = '\0';
     }
 #ifdef HAVE_ASPRINTF
-    SALDL_ASSERT(-1 != asprintf(&cookie, "Set-Cookie: %s; ", curr));
+    INFIDL_ASSERT(-1 != asprintf(&cookie, "Set-Cookie: %s; ", curr));
 #else
     {
       size_t cookie_len = strlen("Set-Cookie: ") + strlen(curr) + strlen("; ") + 1;
-      cookie = saldl_malloc(cookie_len);
+      cookie = infidl_malloc(cookie_len);
     }
 #endif
     curl_easy_setopt(handle, CURLOPT_COOKIELIST, cookie);
-    SALDL_FREE(cookie);
+    INFIDL_FREE(cookie);
     curr = next;
   } while (sep);
 
-  SALDL_FREE(copy_cookie_str);
+  INFIDL_FREE(copy_cookie_str);
 }
 
-char* saldl_user_agent() {
-  char *agent = saldl_calloc(1024, sizeof(char));
-  saldl_snprintf(false, agent, 1024, "%s/%s", "libcurl", curl_version_info(CURLVERSION_NOW)->version);
+char* infidl_user_agent() {
+  char *agent = infidl_calloc(1024, sizeof(char));
+  infidl_snprintf(false, agent, 1024, "%s/%s", "libcurl", curl_version_info(CURLVERSION_NOW)->version);
   return agent;
 }
 
 void chunks_init(info_s *info_ptr) {
   size_t chunk_count = info_ptr->chunk_count;
 
-  info_ptr->chunks = saldl_calloc(chunk_count, sizeof(chunk_s));
+  info_ptr->chunks = infidl_calloc(chunk_count, sizeof(chunk_s));
 
   for (size_t idx = 0; idx < chunk_count; idx++) {
 
@@ -160,10 +160,10 @@ static void remote_info_from_headers(info_s *info_ptr, remote_info_s *remote_inf
 
   if (remote_info->effective_url) {
     debug_msg(FN, "Clearing effective URL: %s", remote_info->effective_url);
-    SALDL_FREE(remote_info->effective_url);
+    INFIDL_FREE(remote_info->effective_url);
   }
 
-  remote_info->effective_url = saldl_strdup(effective_url);
+  remote_info->effective_url = infidl_strdup(effective_url);
 
   if (h->content_range) {
     char *tmp;
@@ -174,7 +174,7 @@ static void remote_info_from_headers(info_s *info_ptr, remote_info_s *remote_inf
       debug_msg(FN, "Remote file size from Content-Range: %"SAL_JU"", remote_info->file_size);
     }
 
-    SALDL_FREE(h->content_range);
+    INFIDL_FREE(h->content_range);
   }
   else {
     curl_off_t size;
@@ -188,7 +188,7 @@ static void remote_info_from_headers(info_s *info_ptr, remote_info_s *remote_inf
   }
 
   // TODO: Remove "none" check when minimum libcurl version required is >= 7.59
-  if (h->content_encoding && saldl_strcasecmp(h->content_encoding, "none"))  {
+  if (h->content_encoding && infidl_strcasecmp(h->content_encoding, "none"))  {
     debug_msg(FN, "Content-Encoding: %s", h->content_encoding);
     remote_info->content_encoded = true;
 
@@ -197,7 +197,7 @@ static void remote_info_from_headers(info_s *info_ptr, remote_info_s *remote_inf
       remote_info->encoding_forced = true;
     }
 
-    SALDL_FREE(h->content_encoding);
+    INFIDL_FREE(h->content_encoding);
   }
 
   if (h->content_type) {
@@ -205,16 +205,16 @@ static void remote_info_from_headers(info_s *info_ptr, remote_info_s *remote_inf
 
     if (remote_info->content_type) {
       debug_msg(FN, "Clearing Content-Type: %s", remote_info->content_type);
-      SALDL_FREE(remote_info->content_type);
+      INFIDL_FREE(remote_info->content_type);
     }
 
-    remote_info->content_type = saldl_strdup(h->content_type);
+    remote_info->content_type = infidl_strdup(h->content_type);
 
     if (strcasestr(h->content_type, "gzip")) {
       remote_info->gzip_content = true;
     }
 
-    SALDL_FREE(h->content_type);
+    INFIDL_FREE(h->content_type);
   }
 
   if (h->content_disposition) {
@@ -252,15 +252,15 @@ static void remote_info_from_headers(info_s *info_ptr, remote_info_s *remote_inf
 
       if (remote_info->attachment_filename) {
         debug_msg(FN, "Clearing attachment filename: %s", remote_info->attachment_filename);
-        SALDL_FREE(remote_info->attachment_filename);
+        INFIDL_FREE(remote_info->attachment_filename);
       }
 
       debug_msg(FN, "Before basename: %s", tmp);
-      remote_info->attachment_filename = saldl_strdup( basename(tmp) );
+      remote_info->attachment_filename = infidl_strdup( basename(tmp) );
       debug_msg(FN, "After basename: %s", remote_info->attachment_filename);
     }
 
-    SALDL_FREE(h->content_disposition);
+    INFIDL_FREE(h->content_disposition);
   }
 
 }
@@ -268,7 +268,7 @@ static void remote_info_from_headers(info_s *info_ptr, remote_info_s *remote_inf
 static size_t  header_function(  void  *ptr,  size_t  size, size_t nmemb, void *userdata) {
   headers_s *h = userdata;
 
-  char *header = saldl_strdup(ptr);
+  char *header = infidl_strdup(ptr);
 
   /* Strip \r\n */
   char *tmp;
@@ -277,36 +277,36 @@ static size_t  header_function(  void  *ptr,  size_t  size, size_t nmemb, void *
   }
 
   if (strcasestr(header, "Content-Range:") == header) {
-    char *h_info = saldl_lstrip(header + strlen("Content-Range:"));
-    SALDL_FREE(h->content_range);
-    h->content_range = saldl_strdup(h_info);
+    char *h_info = infidl_lstrip(header + strlen("Content-Range:"));
+    INFIDL_FREE(h->content_range);
+    h->content_range = infidl_strdup(h_info);
   }
 
   if (strcasestr(header, "Content-Encoding:") == header) {
-    char *h_info = saldl_lstrip(header + strlen("Content-Encoding:"));
-    SALDL_FREE(h->content_encoding);
-    h->content_encoding = saldl_strdup(h_info);
+    char *h_info = infidl_lstrip(header + strlen("Content-Encoding:"));
+    INFIDL_FREE(h->content_encoding);
+    h->content_encoding = infidl_strdup(h_info);
   }
 
   if (strcasestr(header, "Content-Type:") == header) {
-    char *h_info = saldl_lstrip(header + strlen("Content-Type:"));
-    SALDL_FREE(h->content_type);
-    h->content_type = saldl_strdup(h_info);
+    char *h_info = infidl_lstrip(header + strlen("Content-Type:"));
+    INFIDL_FREE(h->content_type);
+    h->content_type = infidl_strdup(h_info);
   }
 
   if (strcasestr(header, "Content-Disposition:") == header ) {
-    char *h_info = saldl_lstrip(header + strlen("Content-Disposition:"));
-    SALDL_FREE(h->content_disposition);
-    h->content_disposition = saldl_strdup(h_info);
+    char *h_info = infidl_lstrip(header + strlen("Content-Disposition:"));
+    INFIDL_FREE(h->content_disposition);
+    h->content_disposition = infidl_strdup(h_info);
   }
 
-  SALDL_FREE(header);
+  INFIDL_FREE(header);
   return size * nmemb;
 }
 
 static long num_redirects(CURL *handle) {
   long redirects = 0;
-  SALDL_ASSERT(handle);
+  INFIDL_ASSERT(handle);
   curl_easy_getinfo(handle, CURLINFO_REDIRECT_COUNT, &redirects);
   return redirects;
 }
@@ -363,7 +363,7 @@ semi_fatal_request_retry:
 
 static void request_remote_info_with_ranges(thread_s *tmp, info_s *info_ptr, remote_info_s *remote_info) {
   CURLcode ret;
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   short semi_fatal_retries = 0;
   bool semi_fatal_error = false;
@@ -421,11 +421,11 @@ static void request_remote_info_with_ranges(thread_s *tmp, info_s *info_ptr, rem
 
 static void set_names(info_s* info_ptr) {
 
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
   remote_info_s *remote_info = &info_ptr->remote_info;
 
   if (params_ptr->to_stdout) {
-    params_ptr->filename = saldl_strdup("STDOUT");
+    params_ptr->filename = infidl_strdup("STDOUT");
   }
 
   if (!params_ptr->filename) {
@@ -436,18 +436,18 @@ static void set_names(info_s* info_ptr) {
 
     /* Get initial filename */
     if (remote_info->attachment_filename && !params_ptr->no_attachment_detection) {
-      prev_unescaped = saldl_strdup(remote_info->attachment_filename);
+      prev_unescaped = infidl_strdup(remote_info->attachment_filename);
     }
     else if (params_ptr->filename_from_redirect) {
-      prev_unescaped = saldl_strdup(info_ptr->remote_info.effective_url);
+      prev_unescaped = infidl_strdup(info_ptr->remote_info.effective_url);
     }
     else {
-      prev_unescaped = saldl_strdup(params_ptr->start_url);
+      prev_unescaped = infidl_strdup(params_ptr->start_url);
     }
 
     /* unescape name/url */
     void(*free_prev)(void*) = free;
-    while ( saldl_strcmp(unescaped = curl_easy_unescape(handle, prev_unescaped, 0, NULL), prev_unescaped) ) {
+    while ( infidl_strcmp(unescaped = curl_easy_unescape(handle, prev_unescaped, 0, NULL), prev_unescaped) ) {
       curl_free(prev_unescaped);
       prev_unescaped = unescaped;
       free_prev = curl_free;
@@ -456,15 +456,15 @@ static void set_names(info_s* info_ptr) {
 
     /* keep attachment name ,if present, as is. basename() unescaped url */
     if (remote_info->attachment_filename) {
-      params_ptr->filename = saldl_strdup(unescaped);
+      params_ptr->filename = infidl_strdup(unescaped);
     } else {
-      params_ptr->filename = saldl_strdup(basename(unescaped));
+      params_ptr->filename = infidl_strdup(basename(unescaped));
     }
     curl_free(unescaped);
 
     /* Finally, remove GET atrrs if present */
     if (!params_ptr->keep_GET_attrs) {
-      char *pre_filename = saldl_strdup(params_ptr->filename);
+      char *pre_filename = infidl_strdup(params_ptr->filename);
       char *q = strrchr(params_ptr->filename, '?');
 
       /* Only strip if we're not going to end up with an empty filename */
@@ -474,21 +474,21 @@ static void set_names(info_s* info_ptr) {
         }
       }
 
-      if ( saldl_strcmp(pre_filename, params_ptr->filename) ) {
+      if ( infidl_strcmp(pre_filename, params_ptr->filename) ) {
         info_msg(FN, "Before stripping GET attrs: %s", pre_filename);
         info_msg(FN, "After  stripping GET attrs: %s", params_ptr->filename);
       }
-      SALDL_FREE(pre_filename);
+      INFIDL_FREE(pre_filename);
     }
 
   }
 
-  if ( !saldl_strcmp(params_ptr->filename,"") ) {
+  if ( !infidl_strcmp(params_ptr->filename,"") ) {
     fatal(FN, "Output filename is empty!");
   }
 
   char *last_path_sep = strrchr(params_ptr->filename,'/');
-  if ( last_path_sep && !saldl_strcmp(last_path_sep, "/") ) {
+  if ( last_path_sep && !infidl_strcmp(last_path_sep, "/") ) {
     fatal(FN, "Output filename \"%s\" ends with a path separator!", params_ptr->filename);
   }
 
@@ -511,9 +511,9 @@ static void set_names(info_s* info_ptr) {
     size_t full_buf_size = strlen(params_ptr->root_dir) + strlen(curr_filename) + 2; // +1 for '/', +1 for '\0'
 
     info_msg(FN, "Prepending root_dir(%s) to filename(%s).", params_ptr->root_dir, params_ptr->filename);
-    params_ptr->filename = saldl_calloc(full_buf_size, sizeof(char)); // +1 for '\0'
-    saldl_snprintf(false, params_ptr->filename, full_buf_size, "%s/%s", params_ptr->root_dir, curr_filename);
-    SALDL_FREE(curr_filename);
+    params_ptr->filename = infidl_calloc(full_buf_size, sizeof(char)); // +1 for '\0'
+    infidl_snprintf(false, params_ptr->filename, full_buf_size, "%s/%s", params_ptr->root_dir, curr_filename);
+    INFIDL_FREE(curr_filename);
   }
 
   if (params_ptr->auto_trunc || params_ptr->smart_trunc) {
@@ -554,23 +554,23 @@ static void set_names(info_s* info_ptr) {
     size_t pre_path_len = 0;
 
     if (params_ptr->filename[0] != '/') {
-      pre_path_len = strlen(saldl_getcwd(cwd,PATH_MAX)) + 1;
+      pre_path_len = strlen(infidl_getcwd(cwd,PATH_MAX)) + 1;
     }
 
-    saldl_snprintf(false, info_ptr->part_filename, PATH_MAX-pre_path_len, "%s.part.sal", params_ptr->filename);
-    saldl_snprintf(false, info_ptr->ctrl_filename,PATH_MAX,"%s.ctrl.sal",params_ptr->filename);
+    infidl_snprintf(false, info_ptr->part_filename, PATH_MAX-pre_path_len, "%s.part.sal", params_ptr->filename);
+    infidl_snprintf(false, info_ptr->ctrl_filename,PATH_MAX,"%s.ctrl.sal",params_ptr->filename);
   }
-  saldl_snprintf(false, info_ptr->tmp_dirname,PATH_MAX,"%s.tmp.sal",params_ptr->filename);
+  infidl_snprintf(false, info_ptr->tmp_dirname,PATH_MAX,"%s.tmp.sal",params_ptr->filename);
 }
 
 static void print_info(info_s *info_ptr) {
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
   remote_info_s *remote_info = &info_ptr->remote_info;
 
   if (!params_ptr->show_details) return;
 
   if ( info_ptr->remote_info.effective_url &&
-      saldl_strcmp(params_ptr->start_url, info_ptr->remote_info.effective_url) ) {
+      infidl_strcmp(params_ptr->start_url, info_ptr->remote_info.effective_url) ) {
     main_msg("Redirected", "%s", info_ptr->remote_info.effective_url);
   }
 
@@ -578,7 +578,7 @@ static void print_info(info_s *info_ptr) {
     main_msg("Mirror", "%s", params_ptr->mirror_start_url);
 
     if (info_ptr->mirror_remote_info.effective_url &&
-        saldl_strcmp(params_ptr->mirror_start_url, info_ptr->mirror_remote_info.effective_url) ) {
+        infidl_strcmp(params_ptr->mirror_start_url, info_ptr->mirror_remote_info.effective_url) ) {
       main_msg("Mirror-Redirected", "%s", info_ptr->mirror_remote_info.effective_url);
     }
   }
@@ -599,7 +599,7 @@ static void print_info(info_s *info_ptr) {
 }
 
 static void set_info_params_from_remote_info(info_s *info_ptr, remote_info_s *remote_info) {
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
     /* Special handling for FTP */
   if (strstr(remote_info->effective_url, "ftp") == remote_info->effective_url) {
@@ -652,11 +652,11 @@ static bool mirror_is_valid(info_s *info_ptr) {
 
   /* Note: We don't care about attachment_filename or content_type */
 
-  SALDL_ASSERT(cp_ri.effective_url);
-  SALDL_ASSERT(cp_mirror_ri.effective_url);
+  INFIDL_ASSERT(cp_ri.effective_url);
+  INFIDL_ASSERT(cp_mirror_ri.effective_url);
 
-  /* We don't set a locale in saldl. So, it's okay to use strcasecomp() */
-  if ( !saldl_strcasecmp(cp_ri.effective_url, cp_mirror_ri.effective_url) ) {
+  /* We don't set a locale in infidl. So, it's okay to use strcasecomp() */
+  if ( !infidl_strcasecmp(cp_ri.effective_url, cp_mirror_ri.effective_url) ) {
     warn_msg(FN, "Both primary and mirror URLs point to the same effective URL.");
     return false;
   }
@@ -681,11 +681,11 @@ static void request_remote_info(info_s *info_ptr, thread_s *tmp) {
    * We also make a 2nd check if filesize was not set. This
    * could happen with non-HTTP protocols like FTP.
    */
-  SALDL_ASSERT(info_ptr);
-  SALDL_ASSERT(tmp);
+  INFIDL_ASSERT(info_ptr);
+  INFIDL_ASSERT(tmp);
 
-  saldl_params *params_ptr = info_ptr->params;
-  SALDL_ASSERT(params_ptr);
+  infidl_params *params_ptr = info_ptr->params;
+  INFIDL_ASSERT(params_ptr);
 
   request_remote_info_with_ranges(tmp, info_ptr, &info_ptr->remote_info);
 
@@ -740,7 +740,7 @@ static void request_remote_info(info_s *info_ptr, thread_s *tmp) {
 }
 
 void get_info(info_s *info_ptr) {
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
   thread_s tmp = DEF_THREAD_S;
 
   if (params_ptr->no_remote_info) {
@@ -786,7 +786,7 @@ no_remote:
 
 void check_remote_file_size(info_s *info_ptr) {
 
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   if (info_ptr->chunk_count <= 1 || params_ptr->single_mode) {
     set_single_mode(info_ptr);
@@ -806,7 +806,7 @@ static void whole_file(info_s *info_ptr) {
     chunk_size += info_ptr->file_size  % info_ptr->params->num_connections;
     chunk_size = (chunk_size  + (1<<12) - 1) >> 12 << 12; /* Round up to 4k boundary */
 
-    info_ptr->params->chunk_size = saldl_max_z_umax(info_ptr->params->chunk_size , chunk_size);
+    info_ptr->params->chunk_size = infidl_max_z_umax(info_ptr->params->chunk_size , chunk_size);
     info_msg(FN, "Chunk size set to %.2f%s based on file size %.2f%s and number of connections %"SAL_ZU".",
         human_size(info_ptr->params->chunk_size), human_size_suffix(info_ptr->params->chunk_size),
         human_size(info_ptr->file_size), human_size_suffix(info_ptr->file_size),
@@ -829,7 +829,7 @@ static void auto_size_func(info_s *info_ptr, int auto_size) {
   if (0 < info_ptr->file_size) {
     size_t orig_chunk_size = info_ptr->params->chunk_size;
 
-    if ( ( info_ptr->params->chunk_size = saldl_max_z_umax((uintmax_t)orig_chunk_size, (uintmax_t)info_ptr->file_size / (uintmax_t)(cols * auto_size) ) ) != orig_chunk_size) {
+    if ( ( info_ptr->params->chunk_size = infidl_max_z_umax((uintmax_t)orig_chunk_size, (uintmax_t)info_ptr->file_size / (uintmax_t)(cols * auto_size) ) ) != orig_chunk_size) {
       info_ptr->params->chunk_size = (info_ptr->params->chunk_size  + (1<<12) - 1) >> 12 << 12; /* Round up to 4k boundary */
       info_msg(FN, "Chunk size set to %.2f%s, no. of connections set to %"SAL_ZU", based on tty width %d and no. of lines requested %d.",
           human_size(info_ptr->params->chunk_size), human_size_suffix(info_ptr->params->chunk_size),
@@ -842,18 +842,18 @@ static void auto_size_func(info_s *info_ptr, int auto_size) {
 
 void check_url(char *url) {
   /* TODO: Add more checks */
-  if (! saldl_strcmp(url, "") ) {
+  if (! infidl_strcmp(url, "") ) {
     fatal(NULL, "Invalid empty url \"%s\".", url);
   }
 }
 
 void set_info(info_s *info_ptr) {
 
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   /* I know this is a crazy way to set defaults */
-  params_ptr->num_connections += !params_ptr->num_connections * (size_t)SALDL_DEF_NUM_CONNECTIONS;
-  params_ptr->chunk_size += !params_ptr->chunk_size * (size_t)SALDL_DEF_CHUNK_SIZE;
+  params_ptr->num_connections += !params_ptr->num_connections * (size_t)INFIDL_DEF_NUM_CONNECTIONS;
+  params_ptr->chunk_size += !params_ptr->chunk_size * (size_t)INFIDL_DEF_CHUNK_SIZE;
 
   if (! params_ptr->single_mode) {
     if ( params_ptr->auto_size  ) {
@@ -906,7 +906,7 @@ void print_chunk_info(info_s *info_ptr) {
 }
 
 void global_progress_init(info_s *info_ptr) {
-  info_ptr->global_progress.start = saldl_utime();
+  info_ptr->global_progress.start = infidl_utime();
   info_ptr->global_progress.curr = info_ptr->global_progress.prev = info_ptr->global_progress.start;
   info_ptr->global_progress.initialized = 1;
 }
@@ -972,15 +972,15 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
   uintmax_t lines = 5;
 
   info_s *info_ptr = (info_s *)void_info_ptr;
-  SALDL_ASSERT(info_ptr);
+  INFIDL_ASSERT(info_ptr);
 
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   double params_refresh = params_ptr->status_refresh_interval;
-  double refresh_interval = params_refresh ? params_refresh : SALDL_DEF_STATUS_REFRESH_INTERVAL;
+  double refresh_interval = params_refresh ? params_refresh : INFIDL_DEF_STATUS_REFRESH_INTERVAL;
 
-  SALDL_ASSERT(!ulnow || info_ptr->params->post || info_ptr->params->raw_post);
-  SALDL_ASSERT(!ultotal || info_ptr->params->post || info_ptr->params->raw_post);
+  INFIDL_ASSERT(!ulnow || info_ptr->params->post || info_ptr->params->raw_post);
+  INFIDL_ASSERT(!ultotal || info_ptr->params->post || info_ptr->params->raw_post);
 
   progress_s *p = &info_ptr->global_progress;
   if (p->initialized) {
@@ -1012,7 +1012,7 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
       p->initialized++;
     }
 
-    p->curr = saldl_utime();
+    p->curr = infidl_utime();
     p->dur = p->curr - p->start;
     p->curr_dur = p->curr - p->prev;
 
@@ -1023,7 +1023,7 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
      * */
     if (p->curr_dur >= refresh_interval || !dltotal  || dlnow == dltotal) {
       if (p->curr_dur >= refresh_interval) {
-        off_t curr_done = saldl_max_o(dlnow + offset - p->dlprev, 0); // Don't go -ve on reconnects
+        off_t curr_done = infidl_max_o(dlnow + offset - p->dlprev, 0); // Don't go -ve on reconnects
         p->curr_rate =  curr_done / p->curr_dur;
         p->curr_rem = p->curr_rate && dltotal ? (dltotal - dlnow) / p->curr_rate : (double)INT64_MAX;
 
@@ -1031,7 +1031,7 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
         p->dlprev = dlnow + offset;
       }
 
-      if (p->dur >= SALDL_STATUS_INITIAL_INTERVAL) {
+      if (p->dur >= INFIDL_STATUS_INITIAL_INTERVAL) {
         p->rate = dlnow / p->dur;
         p->rem = p->rate && dltotal ? (dltotal - dlnow) / p->rate : (double)INT64_MAX;
       }
@@ -1078,7 +1078,7 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
         }
 
         if (is_done) {
-          fprintf(stderr, "] \033[32m%5.1f%%\033[0m  %s / %s  %s/s  %-8.0fs",
+          fprintf(stderr, "] \033[32m%5.1f%%\033[0m | %s / %s | %s/s | %-8.0fs",
               pct, size_done, size_total, rate_buf, p->dur);
         } else if (display_rate > 0) {
           double eta = p->curr_rem < (double)INT64_MAX ? p->curr_rem : p->rem;
@@ -1086,10 +1086,10 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
           if (eta >= 3600) snprintf(eta_buf, sizeof(eta_buf), "%dh%02dm%02ds", (int)(eta/3600), ((int)eta%3600)/60, (int)eta%60);
           else if (eta >= 60) snprintf(eta_buf, sizeof(eta_buf), "%dm%02ds", (int)(eta/60), (int)eta%60);
           else snprintf(eta_buf, sizeof(eta_buf), "%.0fs", eta);
-          fprintf(stderr, "] \033[33m%5.1f%%\033[0m  %s / %s  %s/s  ETA %-8s",
+          fprintf(stderr, "] \033[33m%5.1f%%\033[0m | %s / %s | %s/s | ETA %-8s",
               pct, size_done, size_total, rate_buf, eta_buf);
         } else {
-          fprintf(stderr, "] %5.1f%%  %s / %s                              ",
+          fprintf(stderr, "] %5.1f%% | %s / %s | --.-/s | ETA --:--   ",
               pct, size_done, size_total);
         }
         fprintf(stderr, "   ");
@@ -1102,8 +1102,8 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
 
 static int chunk_progress(void *void_chunk_ptr, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow) {
 
-  SALDL_ASSERT(!ulnow);
-  SALDL_ASSERT(!ultotal);
+  INFIDL_ASSERT(!ulnow);
+  INFIDL_ASSERT(!ultotal);
 
   chunk_s *chunk =  (chunk_s *)void_chunk_ptr;
   size_t rem;
@@ -1132,7 +1132,7 @@ static int chunk_progress(void *void_chunk_ptr, curl_off_t dltotal, curl_off_t d
 
 void set_progress_params(thread_s *thread, info_s *info_ptr) {
 
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   if (params_ptr->single_mode) {
     curl_easy_setopt(thread->ehandle, CURLOPT_XFERINFOFUNCTION, status_single_display);
@@ -1146,12 +1146,12 @@ void set_progress_params(thread_s *thread, info_s *info_ptr) {
 }
 
 void set_params(thread_s *thread, info_s *info_ptr, char *url) {
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
-  SALDL_ASSERT(thread);
-  SALDL_ASSERT(info_ptr);
-  SALDL_ASSERT(params_ptr);
-  SALDL_ASSERT(url);
+  INFIDL_ASSERT(thread);
+  INFIDL_ASSERT(info_ptr);
+  INFIDL_ASSERT(params_ptr);
+  INFIDL_ASSERT(url);
 
   curl_easy_setopt(thread->ehandle, CURLOPT_URL, url);
   curl_easy_setopt(thread->ehandle, CURLOPT_ERRORBUFFER, thread->err_buf);
@@ -1289,9 +1289,9 @@ void set_params(thread_s *thread, info_s *info_ptr, char *url) {
       curl_easy_setopt(thread->ehandle, CURLOPT_USERAGENT, params_ptr->user_agent);
     }
     else {
-      char *default_agent = saldl_user_agent();
+      char *default_agent = infidl_user_agent();
       curl_easy_setopt(thread->ehandle, CURLOPT_USERAGENT, default_agent);
-      SALDL_FREE(default_agent);
+      INFIDL_FREE(default_agent);
     }
   }
 
@@ -1331,7 +1331,7 @@ void set_params(thread_s *thread, info_s *info_ptr, char *url) {
 
 void set_single_mode(info_s *info_ptr) {
 
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   if (!params_ptr->single_mode) {
     info_msg(FN, "File small, enabling single mode.");
@@ -1349,7 +1349,7 @@ void set_single_mode(info_s *info_ptr) {
 }
 
 void check_files_and_dirs(info_s *info_ptr) {
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
 
   if (params_ptr->read_only) {
     return;
@@ -1395,7 +1395,7 @@ void check_files_and_dirs(info_s *info_ptr) {
       warn_msg(FN, "%s did not exist. Maybe previous run used memory buffers or the dir was deleted manually.", info_ptr->tmp_dirname);
     }
     /* mkdir with 700 perms */
-    if ( saldl_mkdir(info_ptr->tmp_dirname, S_IRWXU) ) {
+    if ( infidl_mkdir(info_ptr->tmp_dirname, S_IRWXU) ) {
       fatal(FN, "Failed to create %s: %s", info_ptr->tmp_dirname, strerror(errno) );
     }
   }
@@ -1414,7 +1414,7 @@ void check_files_and_dirs(info_s *info_ptr) {
   }
 }
 
-void saldl_perform(thread_s *thread) {
+void infidl_perform(thread_s *thread) {
   CURLcode ret;
   long response;
   short semi_fatal_retries = 0;
@@ -1445,7 +1445,7 @@ void saldl_perform(thread_s *thread) {
 
     /* Break if everything went okay */
     if (ret == CURLE_OK && thread->chunk->size_complete == thread->chunk->size) {
-      goto saldl_perform_success;
+      goto infidl_perform_success;
     }
 
     switch (ret) {
@@ -1461,7 +1461,7 @@ void saldl_perform(thread_s *thread) {
               warn_msg(FN, "Returned CURLE_OK, but completed size(%"SAL_ZU") != requested size(%"SAL_ZU").",
                   thread->chunk->size_complete, thread->chunk->size);
               warn_msg(FN, "We trust libcurl and assume that's okay if single mode.");
-              goto saldl_perform_success;
+              goto infidl_perform_success;
             }
             else {
               fatal(FN, "Returned CURLE_OK for chunk %"SAL_ZU", but completed size(%"SAL_ZU") != requested size(%"SAL_ZU").",
@@ -1514,19 +1514,19 @@ semi_fatal_perform_retry:
         break;
     }
   }
-saldl_perform_success: ;
+infidl_perform_success: ;
 }
 
 void* thread_func(void* threadS) {
   /* Block signals first */
-  saldl_block_sig_pth();
+  infidl_block_sig_pth();
 
   /* Detach so we don't have to waste time joining it */
   pthread_detach(pthread_self());
 
   thread_s* tmp = threadS;
   set_chunk_progress(tmp->chunk, PRG_STARTED);
-  saldl_perform(tmp);
+  infidl_perform(tmp);
   set_chunk_progress(tmp->chunk, PRG_FINISHED);
   return threadS;
 }

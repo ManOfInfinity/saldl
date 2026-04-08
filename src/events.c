@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -28,7 +28,7 @@ void join_event_pth(event_s *ev_this, pthread_t *event_thread_id) {
       pthread_detach(*event_thread_id);
     }
     else {
-      saldl_pthread_join_accept_einval(*event_thread_id, NULL);
+      infidl_pthread_join_accept_einval(*event_thread_id, NULL);
     }
 
     debug_event_msg(FN, "Setting %s status to EVENT_NULL.", str_EVENT_FD(ev_this->vFD));
@@ -55,17 +55,17 @@ const char* str_EVENT_FD (enum EVENT_FD fd) {
 }
 
 void events_init(event_s *ev_this, event_callback_fn cb, void *cb_data, enum EVENT_FD vFD) {
-  SALDL_ASSERT(ev_this->event_status == EVENT_THREAD_STARTED);
+  INFIDL_ASSERT(ev_this->event_status == EVENT_THREAD_STARTED);
 
   debug_event_msg(FN, "Init %s.", str_EVENT_FD(vFD));
 
   /* Don't interrupt event threads, they will react to SESSION interrupted and exit cleanly */
-  saldl_block_sig_pth();
+  infidl_block_sig_pth();
 
   /* initialize mutex */
-  SALDL_ASSERT(!pthread_mutexattr_init(&ev_this->ev_mutex_attr));
-  SALDL_ASSERT(!pthread_mutexattr_settype(&ev_this->ev_mutex_attr, PTHREAD_MUTEX_ERRORCHECK));
-  SALDL_ASSERT(!pthread_mutex_init(&ev_this->ev_mutex, &ev_this->ev_mutex_attr));
+  INFIDL_ASSERT(!pthread_mutexattr_init(&ev_this->ev_mutex_attr));
+  INFIDL_ASSERT(!pthread_mutexattr_settype(&ev_this->ev_mutex_attr, PTHREAD_MUTEX_ERRORCHECK));
+  INFIDL_ASSERT(!pthread_mutex_init(&ev_this->ev_mutex, &ev_this->ev_mutex_attr));
 
   /* Max time-out between events */
   if (!ev_this->tv.tv_sec && !ev_this->tv.tv_usec) { // keep tv as-is if it's already set
@@ -74,27 +74,27 @@ void events_init(event_s *ev_this, event_callback_fn cb, void *cb_data, enum EVE
 
   /* setup event base and the event itself */
   ev_this->ev_b = event_base_new();
-  SALDL_ASSERT(ev_this->ev_b);
+  INFIDL_ASSERT(ev_this->ev_b);
   ev_this->vFD = vFD;
   ev_this->ev = event_new(ev_this->ev_b, vFD, EV_WRITE|EV_PERSIST, cb, cb_data);
 
   /* Add the event with tv as max time-out */
-  SALDL_ASSERT(!event_add(ev_this->ev, &ev_this->tv));
+  INFIDL_ASSERT(!event_add(ev_this->ev, &ev_this->tv));
 
   /* Initialization done */
   ev_this->event_status = EVENT_INIT;
 }
 
 void events_activate(event_s *ev_this) {
-  SALDL_ASSERT(ev_this->event_status == EVENT_INIT);
+  INFIDL_ASSERT(ev_this->event_status == EVENT_INIT);
   debug_event_msg(FN, "Activating %s.", str_EVENT_FD(ev_this->vFD));
   ev_this->event_status = EVENT_ACTIVE;
-  SALDL_ASSERT(event_base_loop(ev_this->ev_b, 0) >= 0);
+  INFIDL_ASSERT(event_base_loop(ev_this->ev_b, 0) >= 0);
 }
 
 void events_deactivate(event_s *ev_this) {
-  SALDL_ASSERT(ev_this->event_status >= EVENT_INIT);
-  saldl_pthread_mutex_lock_retry_deadlock(&ev_this->ev_mutex);
+  INFIDL_ASSERT(ev_this->event_status >= EVENT_INIT);
+  infidl_pthread_mutex_lock_retry_deadlock(&ev_this->ev_mutex);
 
   /* Check if not already deactivated. Remember that active events will
    * run, even after calling event_base_loopexit(). */
@@ -105,15 +105,15 @@ void events_deactivate(event_s *ev_this) {
     ev_this->event_status = EVENT_INIT;
 
     /* Unlike loopbreak, this will run all active events before exiting */
-    SALDL_ASSERT(!event_base_loopexit(ev_this->ev_b, NULL));
+    INFIDL_ASSERT(!event_base_loopexit(ev_this->ev_b, NULL));
   }
 
-  saldl_pthread_mutex_unlock(&ev_this->ev_mutex);
+  infidl_pthread_mutex_unlock(&ev_this->ev_mutex);
 }
 
 void events_deinit(event_s *ev_this) {
-  SALDL_ASSERT(ev_this->event_status == EVENT_INIT);
-  saldl_pthread_mutex_lock_retry_deadlock(&ev_this->ev_mutex);
+  INFIDL_ASSERT(ev_this->event_status == EVENT_INIT);
+  infidl_pthread_mutex_lock_retry_deadlock(&ev_this->ev_mutex);
 
   debug_event_msg(FN, "De-init %s.", str_EVENT_FD(ev_this->vFD));
 
@@ -126,16 +126,16 @@ void events_deinit(event_s *ev_this) {
   ev_this->event_status = EVENT_THREAD_STARTED;
 
   /* Unlock and destroy mutex */
-  saldl_pthread_mutex_unlock(&ev_this->ev_mutex);
-  SALDL_ASSERT(!pthread_mutex_destroy(&ev_this->ev_mutex));
-  SALDL_ASSERT(!pthread_mutexattr_destroy(&ev_this->ev_mutex_attr));
+  infidl_pthread_mutex_unlock(&ev_this->ev_mutex);
+  INFIDL_ASSERT(!pthread_mutex_destroy(&ev_this->ev_mutex));
+  INFIDL_ASSERT(!pthread_mutexattr_destroy(&ev_this->ev_mutex_attr));
 }
 
 static void event_trigger(event_s *ev_this) {
-  saldl_block_sig_pth();
+  infidl_block_sig_pth();
 
   if (ev_this && ev_this->event_status == EVENT_ACTIVE) {
-    saldl_pthread_mutex_lock_retry_deadlock(&ev_this->ev_mutex);
+    infidl_pthread_mutex_lock_retry_deadlock(&ev_this->ev_mutex);
 
     /* We check for EVENT_ACTIVE again in mutex lock to avoid races with deactivation code */
     if ( ev_this->event_status == EVENT_ACTIVE) {
@@ -145,10 +145,10 @@ static void event_trigger(event_s *ev_this) {
 
     /* Before unlocking the mutex, make sure event wasn't de-initialized somehow. */
     if (ev_this->event_status >= EVENT_INIT) {
-      saldl_pthread_mutex_unlock(&ev_this->ev_mutex);
+      infidl_pthread_mutex_unlock(&ev_this->ev_mutex);
     }
   }
-  saldl_unblock_sig_pth();
+  infidl_unblock_sig_pth();
 }
 
 void event_queue(event_s *ev_trigger, event_s *ev_to_queue) {
@@ -160,25 +160,25 @@ static void events_check_queues(info_s *info_ptr) {
   if (info_ptr->ev_queue.queued) {
     event_trigger(&info_ptr->ev_queue);
     info_ptr->ev_queue.queued -= 1;
-    SALDL_ASSERT(info_ptr->ev_queue.queued >= 0);
+    INFIDL_ASSERT(info_ptr->ev_queue.queued >= 0);
   }
 
   if (info_ptr->ev_ctrl.queued) {
     event_trigger(&info_ptr->ev_ctrl);
     info_ptr->ev_ctrl.queued -= 1;
-    SALDL_ASSERT(info_ptr->ev_ctrl.queued >= 0);
+    INFIDL_ASSERT(info_ptr->ev_ctrl.queued >= 0);
   }
 
   if (info_ptr->ev_merge.queued) {
     event_trigger(&info_ptr->ev_merge);
     info_ptr->ev_merge.queued -= 1;
-    SALDL_ASSERT(info_ptr->ev_merge.queued >= 0);
+    INFIDL_ASSERT(info_ptr->ev_merge.queued >= 0);
   }
 
   if (info_ptr->ev_status.queued) {
     event_trigger(&info_ptr->ev_status);
     info_ptr->ev_status.queued -= 1;
-    SALDL_ASSERT(info_ptr->ev_status.queued >= 0);
+    INFIDL_ASSERT(info_ptr->ev_status.queued >= 0);
   }
 }
 
@@ -199,7 +199,7 @@ void* events_trigger_thread(void *void_info_ptr) {
   info_s *info_ptr = (info_s*)void_info_ptr;
 
   /* Thread entered */
-  SALDL_ASSERT(info_ptr->ev_trigger.event_status == EVENT_NULL);
+  INFIDL_ASSERT(info_ptr->ev_trigger.event_status == EVENT_NULL);
   info_ptr->ev_trigger.event_status = EVENT_THREAD_STARTED;
 
   /* event loop */

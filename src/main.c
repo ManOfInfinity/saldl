@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-#include "saldl.h"
+#include "infidl.h"
 
 #if !CURL_AT_LEAST_VERSION(7, 55, 0)
 #error "libcurl >= 7.55.0 required."
@@ -31,7 +31,7 @@
 
 static void print_libcurl_protocols(const char * const *protocols) {
   intptr_t index = 0;
-  SALDL_ASSERT(protocols);
+  INFIDL_ASSERT(protocols);
 
   fprintf(stderr, "Protocols:");
 
@@ -43,9 +43,9 @@ static void print_libcurl_protocols(const char * const *protocols) {
   fprintf(stderr, ".\n");
 }
 
-static int saldl_version() {
+static int infidl_version() {
   curl_version_info_data *curl_info = curl_version_info(CURLVERSION_NOW);
-  fprintf(stderr, "%s %s (%s)\n", SALDL_NAME, SALDL_VERSION, SALDL_WWW);
+  fprintf(stderr, "%s %s (%s)\n", INFIDL_NAME, INFIDL_VERSION, INFIDL_WWW);
   fprintf(stderr, "\n");
   fprintf(stderr, "Copyright (C) 2026 ManOfInfinity.\n");
   fprintf(stderr, "Free use of this software is granted under the terms of\n");
@@ -57,8 +57,8 @@ static int saldl_version() {
   return 0;
 }
 
-static int saldl_help(char *caller) {
-  saldl_version();
+static int infidl_help(char *caller) {
+  infidl_version();
   fprintf(stderr, "\nUsage: %s [OPTIONS] URL\n", caller);
   fprintf(stderr, "\nGeneral Options:\n");
   fprintf(stderr, "  -h, --help                      Print this help message and exit\n");
@@ -142,19 +142,19 @@ static int saldl_help(char *caller) {
   fprintf(stderr, "      --verbose-libcurl            Enable libcurl verbose output\n");
   fprintf(stderr, "      --read-only                  Read-only mode (no download)\n");
   fprintf(stderr, "\nEnvironment Variables:\n");
-  fprintf(stderr, "  SALDL_EXTRA_ARGS                 Extra arguments appended to command\n");
-  fprintf(stderr, "\nReport bugs: %s\n", SALDL_BUG);
+  fprintf(stderr, "  INFIDL_EXTRA_ARGS                 Extra arguments appended to command\n");
+  fprintf(stderr, "\nReport bugs: %s\n", INFIDL_BUG);
   return 0;
 }
 
 static int usage(char *caller) {
-  fprintf(stderr, "%s %s (%s)\n", SALDL_NAME, SALDL_VERSION, SALDL_WWW);
+  fprintf(stderr, "%s %s (%s)\n", INFIDL_NAME, INFIDL_VERSION, INFIDL_WWW);
   fprintf(stderr, "\nUsage: %s [OPTIONS] URL\n", caller);
   fprintf(stderr, "Try '%s -h' for more information.\n", caller);
   return EXIT_FAILURE;
 }
 
-int set_get_info(saldl_params *params, char *get_info) {
+int set_get_info(infidl_params *params, char *get_info) {
   if (!strcmp(get_info, "file-name")) {
     params->get_file_name = true;
   }
@@ -171,7 +171,7 @@ int set_get_info(saldl_params *params, char *get_info) {
   return 0;
 }
 
-static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv) {
+static int parse_opts(infidl_params *params_ptr, int full_argc, char **full_argv) {
   int opt_idx = 0, c = 0;
   static struct option long_opts[] = {
     {"help", no_argument, 0, 'h'},
@@ -330,7 +330,7 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
         params_ptr->connection_max_rate = parse_num_z(optarg, 1);
         break;
       case 'u':
-        params_ptr->user_agent = saldl_strdup(optarg);
+        params_ptr->user_agent = infidl_strdup(optarg);
         break;
       case 'U':
         params_ptr->no_user_agent = true;
@@ -342,22 +342,22 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
         params_ptr->no_decompress= true;
         break;
       case 'M':
-        params_ptr->since_file_mtime = saldl_strdup(optarg);
+        params_ptr->since_file_mtime = infidl_strdup(optarg);
         break;
       case 'Y':
-        params_ptr->date_expr = saldl_strdup(optarg);
+        params_ptr->date_expr = infidl_strdup(optarg);
         break;
       case 'p':
-        params_ptr->post = saldl_strdup(optarg);
+        params_ptr->post = infidl_strdup(optarg);
         break;
       case 'P':
-        params_ptr->raw_post = saldl_strdup(optarg);
+        params_ptr->raw_post = infidl_strdup(optarg);
         break;
       case 'k':
-        params_ptr->inline_cookies = saldl_strdup(optarg);
+        params_ptr->inline_cookies = infidl_strdup(optarg);
         break;
       case 'K':
-        params_ptr->cookie_file = saldl_strdup(optarg);
+        params_ptr->cookie_file = infidl_strdup(optarg);
         break;
       case '6':
         params_ptr->forced_ip_protocol = 6;
@@ -366,16 +366,16 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
         params_ptr->forced_ip_protocol = 4;
         break;
       case 'e':
-        params_ptr->referer = saldl_strdup(optarg);
+        params_ptr->referer = infidl_strdup(optarg);
         break;
       case 'E':
         params_ptr->auto_referer = true;
         break;
       case 'x':
-        params_ptr->proxy = saldl_strdup(optarg);
+        params_ptr->proxy = infidl_strdup(optarg);
         break;
       case 'X':
-        params_ptr->tunnel_proxy = saldl_strdup(optarg);
+        params_ptr->tunnel_proxy = infidl_strdup(optarg);
         break;
       case 'N':
         params_ptr->no_proxy = true;
@@ -384,7 +384,7 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
         params_ptr->no_timeouts = true;
         break;
       case 'H':
-        params_ptr->custom_headers = saldl_custom_headers_append(params_ptr->custom_headers, optarg);
+        params_ptr->custom_headers = infidl_custom_headers_append(params_ptr->custom_headers, optarg);
         break;
       case 'I':
         params_ptr->no_remote_info = true;
@@ -408,10 +408,10 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
         params_ptr->dry_run = true;
         break;
       case 'D':
-        params_ptr->root_dir = saldl_strdup(optarg);
+        params_ptr->root_dir = infidl_strdup(optarg);
         break;
       case 'o':
-        params_ptr->filename= saldl_strdup(optarg);
+        params_ptr->filename= infidl_strdup(optarg);
         break;
       case 't':
         params_ptr->auto_trunc= true;
@@ -450,7 +450,7 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
         break;
 
       case SAL_OPT_MIRROR_URL:
-        params_ptr->mirror_start_url = saldl_strdup(optarg);
+        params_ptr->mirror_start_url = infidl_strdup(optarg);
         break;
 
       case SAL_OPT_FATAL_IF_INVALID_MIRROR:
@@ -510,7 +510,7 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
         break;
 
       case SAL_OPT_PROXY_CUSTOM_HEADERS:
-        params_ptr->proxy_custom_headers = saldl_custom_headers_append(params_ptr->proxy_custom_headers, optarg);
+        params_ptr->proxy_custom_headers = infidl_custom_headers_append(params_ptr->proxy_custom_headers, optarg);
         break;
 
       case SAL_OPT_TIMEOUT_LOW_SPEED:
@@ -538,7 +538,7 @@ static int parse_opts(saldl_params *params_ptr, int full_argc, char **full_argv)
     return 1;
   }
 
-    params_ptr->start_url = saldl_strdup(full_argv[optind]);
+    params_ptr->start_url = infidl_strdup(full_argv[optind]);
 
   return 0;
 }
@@ -558,7 +558,7 @@ int main(int argc,char **argv) {
 #endif
 
   /* Initialize params */
-  saldl_params params = DEF_SALDL_PARAMS;
+  infidl_params params = DEF_INFIDL_PARAMS;
 
   /* Set to defaults before parsing opts. Without this, any early call
    * to a log function [e.g. fatal()] would sigfault.
@@ -568,9 +568,9 @@ int main(int argc,char **argv) {
 
   int counter;
   int full_argc = argc;
-  char **full_argv = saldl_calloc(argc, sizeof(char *));
+  char **full_argv = infidl_calloc(argc, sizeof(char *));
 
-  char *extra_argv_str = getenv("SALDL_EXTRA_ARGS");
+  char *extra_argv_str = getenv("INFIDL_EXTRA_ARGS");
 
   /* As argv is not re-allocatable, copy argv elements' pointers into full_argv */
   for (counter = 0; counter < argc; counter++) {
@@ -582,34 +582,34 @@ int main(int argc,char **argv) {
     char *token  = strtok(extra_argv_str, " ");
     do {
       full_argc++;
-      full_argv = saldl_realloc(full_argv, sizeof(char *) * full_argc);
+      full_argv = infidl_realloc(full_argv, sizeof(char *) * full_argc);
       full_argv[full_argc-1] = token;
     } while ( (token = strtok(NULL, " ")) );
   }
 
   /* Parse opts */
   int ret_parse = parse_opts(&params, full_argc, full_argv);
-  SALDL_FREE(full_argv);
+  INFIDL_FREE(full_argv);
 
   if (ret_parse) {
     if (params.print_help) {
-      return saldl_help(argv[0]);
+      return infidl_help(argv[0]);
     } else if (params.print_version) {
-      return saldl_version();
+      return infidl_version();
     } else {
       return usage(argv[0]);
     }
   }
 
   if (params.print_help) {
-    return saldl_help(argv[0]);
+    return infidl_help(argv[0]);
   }
 
   if (params.print_version) {
-    return saldl_version();
+    return infidl_version();
   }
 
-  saldl(&params);
+  infidl(&params);
   return 0;
 }
 

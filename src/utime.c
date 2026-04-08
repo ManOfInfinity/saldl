@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -22,7 +22,7 @@
 #ifdef HAVE_CLOCK_MONOTONIC_RAW
 
 #include <time.h>
-double saldl_utime() {
+double infidl_utime() {
   struct timespec tp;
   int ret = clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
 
@@ -37,7 +37,7 @@ double saldl_utime() {
 
 #include <sys/time.h>
 
-double saldl_utime() {
+double infidl_utime() {
   struct timeval tv;
   int ret = gettimeofday(&tv, NULL);
 

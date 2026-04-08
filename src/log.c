@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -79,7 +79,7 @@ int tty_width() {
 
 void set_color(size_t *no_color) {
 
-  SALDL_ASSERT(no_color);
+  INFIDL_ASSERT(no_color);
 
   ret_char = RET_CHAR;
   bold = BOLD;
@@ -120,8 +120,8 @@ void set_color(size_t *no_color) {
 
 void set_verbosity(size_t *verbosity, bool *libcurl_verbosity) {
 
-  SALDL_ASSERT(verbosity);
-  SALDL_ASSERT(libcurl_verbosity);
+  INFIDL_ASSERT(verbosity);
+  INFIDL_ASSERT(libcurl_verbosity);
 
   debug_event_msg = debug_msg = info_msg = warn_msg = err_msg = (log_func *)null_msg;
 
@@ -148,11 +148,11 @@ void set_verbosity(size_t *verbosity, bool *libcurl_verbosity) {
   }
 }
 
-__attribute__(( format(SALDL_PRINTF_FORMAT,3,0) ))
+__attribute__(( format(INFIDL_PRINTF_FORMAT,3,0) ))
   static void log_stderr(const char *type, const char *name, const char *format, va_list args) {
     fprintf(stderr, "%s%s%s", ret_char, erase_before, erase_screen_after);
-    /* saldl_fputs() is defined in common.c, so we can't use it here */
-    if (type) SALDL_ASSERT(EOF != fputs(type, stderr));
+    /* infidl_fputs() is defined in common.c, so we can't use it here */
+    if (type) INFIDL_ASSERT(EOF != fputs(type, stderr));
     if (name) fprintf(stderr,"%s%s:%s ", bold, name, end);
     vfprintf(stderr, format, args);
     fprintf(stderr, "\n");

@@ -30,8 +30,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-linux-x86_64
-          path: build/saldl
+          name: infidl-linux-x86_64
+          path: build/infidl
 
   build-linux-static:
     runs-on: ubuntu-latest
@@ -64,13 +64,13 @@ jobs:
         run: python3 waf build
 
       - name: Verify static binary
-        run: ls -lh build/saldl
+        run: ls -lh build/infidl
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-linux-x86_64-static
-          path: build/saldl
+          name: infidl-linux-x86_64-static
+          path: build/infidl
 
   build-macos:
     runs-on: macos-latest
@@ -93,8 +93,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-macos-arm64
-          path: build/saldl
+          name: infidl-macos-arm64
+          path: build/infidl
 
   build-windows-static:
     runs-on: ubuntu-latest
@@ -153,28 +153,28 @@ jobs:
           make -j$(nproc)
           make install
 
-      - name: Configure saldl
+      - name: Configure infidl
         run: |
           export CC=${HOST}-gcc
           export LINKFLAGS_SAL="-L${PREFIX}/lib -static"
           python3 waf configure --disable-man --no-werror --enable-static \
             --enable-link-optimizations \
-            --saldl-version="$(git describe --tags --long --dirty 2>/dev/null || echo '2.0')" \
+            --infidl-version="$(git describe --tags --long --dirty 2>/dev/null || echo '2.0')" \
             --libcurl-cflags "-I${PREFIX}/include -DCURL_STATICLIB" \
             --libcurl-libs "-L${PREFIX}/lib -lcurl -lz -lws2_32 -lcrypt32 -lbcrypt -ladvapi32 -liphlpapi" \
             --libevent-pthreads-cflags "-I${PREFIX}/include" \
             --libevent-pthreads-libs "-L${PREFIX}/lib -levent -levent_core"
 
-      - name: Build saldl
+      - name: Build infidl
         run: python3 waf build -v
 
       - name: Verify
         run: |
-          file build/saldl.exe
-          ${HOST}-objdump -p build/saldl.exe | grep "DLL Name" || echo "No DLL imports - fully static"
+          file build/infidl.exe
+          ${HOST}-objdump -p build/infidl.exe | grep "DLL Name" || echo "No DLL imports - fully static"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-windows-x86_64
-          path: build/saldl.exe
+          name: infidl-windows-x86_64
+          path: build/infidl.exe

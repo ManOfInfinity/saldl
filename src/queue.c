@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -37,7 +37,7 @@ static size_t last_chunk_from_last_size(info_s *info_ptr) {
     last_sz_1st = (off_t)SIZE_MAX;
   }
 
-  SALDL_ASSERT(last_sz_1st >= 0);
+  INFIDL_ASSERT(last_sz_1st >= 0);
 
   rem_last_sz = (size_t)last_sz_1st;
 
@@ -88,10 +88,10 @@ static chunk_s* pick_next_last_first(info_s *info_ptr) {
   }
   else if (info_ptr->rem_size) {
   /* last chunk is smaller, so we don't take it into account */
-    last_first = saldl_min(info_ptr->params->last_chunks_first+1, end_idx);
+    last_first = infidl_min(info_ptr->params->last_chunks_first+1, end_idx);
   }
   else {
-    last_first = saldl_min(info_ptr->params->last_chunks_first, end_idx);
+    last_first = infidl_min(info_ptr->params->last_chunks_first, end_idx);
   }
 
   /* -1 for indices */
@@ -112,13 +112,13 @@ static chunk_s* pick_next(info_s *info_ptr) {
     }
   }
 
-  SALDL_ASSERT(chunk);
+  INFIDL_ASSERT(chunk);
   return chunk;
 }
 
 void prep_next(info_s *info_ptr, thread_s *thread, chunk_s *chunk, int init) {
 
-  saldl_params *params_ptr = info_ptr->params;
+  infidl_params *params_ptr = info_ptr->params;
   file_s *storage_info = &info_ptr->storage_info;
 
   thread->chunk = chunk;
@@ -169,7 +169,7 @@ void queue_next_chunk(info_s *info_ptr, size_t thr_idx, int init) {
   prep_next(info_ptr, thr, chunk, init);
 
   /* Fetch */
-  saldl_pthread_create(&thr->chunk->thr_id, NULL, thread_func, thr);
+  infidl_pthread_create(&thr->chunk->thr_id, NULL, thread_func, thr);
 }
 
 static void queue_next_cb(evutil_socket_t fd, short what, void *arg) {
@@ -193,7 +193,7 @@ void* queue_next_thread(void *void_info_ptr) {
   info_s *info_ptr = (info_s*)void_info_ptr;
 
   /* Thread entered */
-  SALDL_ASSERT(info_ptr->ev_queue.event_status == EVENT_NULL);
+  INFIDL_ASSERT(info_ptr->ev_queue.event_status == EVENT_NULL);
   info_ptr->ev_queue.event_status = EVENT_THREAD_STARTED;
 
   /* event loop */

@@ -1,23 +1,23 @@
 # For MSYS2
 # Maintainer: ManOfInfinity <https://github.com/ManOfInfinity>
 
-pkgbase=saldl-git
+pkgbase=infidl-git
 pkgname=("$pkgbase")
 pkgver=v2.0
 pkgrel=1
-url="https://github.com/ManOfInfinity/saldl"
+url="https://github.com/ManOfInfinity/infidl"
 pkgdesc="A CLI downloader optimized for speed and early preview, based on libcurl."
 arch=('i686' 'x86_64')
 license=('AGPL')
 depends=('msys2-runtime' 'libcurl' 'libevent')
 makedepends=('msys2-runtime-devel' 'libcurl-devel' 'libevent-devel' 'python3' 'git' 'asciidoc')
-source=($pkgbase::git://github.com/ManOfInfinity/saldl.git)
+source=($pkgbase::git://github.com/ManOfInfinity/infidl.git)
 md5sums=('SKIP')
 
 pkgver() {
   cd "$srcdir/$pkgbase"
-  saldl_ver="$(git describe --tags --long --dirty)"
-  echo ${saldl_ver//-/.}
+  infidl_ver="$(git describe --tags --long --dirty)"
+  echo ${infidl_ver//-/.}
 }
 
 build() {
@@ -30,7 +30,7 @@ build() {
   python3 waf build
 }
 
-package_saldl-git() {
+package_infidl-git() {
   cd "$srcdir/$pkgname"
   python3 waf install --destdir="$pkgdir"
 }
