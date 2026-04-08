@@ -70,7 +70,7 @@ static int infidl_help(char *caller) {
   fprintf(stderr, "\nDownload Options:\n");
   fprintf(stderr, "  -c, --connections=NUM            Number of parallel connections [default: 6]\n");
   fprintf(stderr, "  -s, --chunk-size=SIZE            Chunk size in bytes [default: 1MiB]\n");
-  fprintf(stderr, "  -a, --auto-size=NUM              Auto-adjust chunk size (NUM chunks/conn)\n");
+  fprintf(stderr, "  -a, --auto-size=NUM              Auto chunk size (file_size / connections*NUM)\n");
   fprintf(stderr, "  -w, --whole-file                 Set chunk size to file_size/connections\n");
   fprintf(stderr, "  -R, --connection-max-rate=RATE   Max download rate per connection (bytes/s)\n");
   fprintf(stderr, "  -S, --single                     Single connection mode\n");

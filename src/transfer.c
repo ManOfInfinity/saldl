@@ -815,29 +815,26 @@ static void whole_file(info_s *info_ptr) {
 }
 
 static void auto_size_func(info_s *info_ptr, int auto_size) {
-  int cols = tty_width();
-  if (cols <= 0) {
-    info_msg(NULL, "Couldn't retrieve tty width. Chunk size will not be modified.");
-    return;
+  if (info_ptr->file_size <= 0) return;
+
+  size_t num_conns = info_ptr->params->num_connections;
+  if (num_conns < 1) num_conns = 1;
+
+  /* Split file into (connections * auto_size) chunks */
+  size_t total_chunks = num_conns * (size_t)auto_size;
+  size_t new_chunk_size = (size_t)((uintmax_t)info_ptr->file_size / (uintmax_t)total_chunks);
+
+  /* Round up to 4k boundary */
+  new_chunk_size = (new_chunk_size + (1<<12) - 1) >> 12 << 12;
+
+  /* Only increase chunk size, never decrease below default */
+  size_t orig_chunk_size = info_ptr->params->chunk_size;
+  if (new_chunk_size > orig_chunk_size) {
+    info_ptr->params->chunk_size = new_chunk_size;
+    info_msg(FN, "Chunk size set to %.2f%s (%zu chunks across %"SAL_ZU" connections).",
+        human_size(info_ptr->params->chunk_size), human_size_suffix(info_ptr->params->chunk_size),
+        total_chunks, num_conns);
   }
-
-  if (cols <= 2) {
-    info_msg(NULL, "Retrieved tty width (%d) is too small.", cols);
-    return;
-  }
-
-  if (0 < info_ptr->file_size) {
-    size_t orig_chunk_size = info_ptr->params->chunk_size;
-
-    if ( ( info_ptr->params->chunk_size = infidl_max_z_umax((uintmax_t)orig_chunk_size, (uintmax_t)info_ptr->file_size / (uintmax_t)(cols * auto_size) ) ) != orig_chunk_size) {
-      info_ptr->params->chunk_size = (info_ptr->params->chunk_size  + (1<<12) - 1) >> 12 << 12; /* Round up to 4k boundary */
-      info_msg(FN, "Chunk size set to %.2f%s, no. of connections set to %"SAL_ZU", based on tty width %d and no. of lines requested %d.",
-          human_size(info_ptr->params->chunk_size), human_size_suffix(info_ptr->params->chunk_size),
-          info_ptr->params->num_connections, cols, auto_size);
-    }
-
-  }
-
 }
 
 void check_url(char *url) {
