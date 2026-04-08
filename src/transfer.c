@@ -1058,12 +1058,8 @@ static int status_single_display(void *void_info_ptr, curl_off_t dltotal, curl_o
             human_size(display_rate), human_size_suffix(display_rate));
 
         fprintf(stderr, "\r%s [", erase_after);
-        if (filled > 0) {
-          fprintf(stderr, "%s", ok_color);
-          for (int i = 0; i < filled; i++) fprintf(stderr, "\xe2\x96\x88");
-          fprintf(stderr, "%s", end);
-        }
-        for (int i = filled; i < bar_width; i++) fprintf(stderr, "\xe2\x96\x91");
+        for (int i = 0; i < filled; i++) fprintf(stderr, "\xe2\x96\xa0");
+        for (int i = filled; i < bar_width; i++) fprintf(stderr, "\xe2\x96\xa1");
 
         if (dlnow + offset >= info_ptr->file_size && info_ptr->file_size > 0) {
           fprintf(stderr, "] %5.1f%% | %10s / %10s | %10s/s | %.0fs",

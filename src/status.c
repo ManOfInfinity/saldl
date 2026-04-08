@@ -21,8 +21,8 @@
 #include "utime.h"
 
 #define DEF_STATUS_LINES 2
-#define BAR_FILL_CHAR "\xe2\x96\x88"   /* U+2588 FULL BLOCK █ */
-#define BAR_EMPTY_CHAR "\xe2\x96\x91"  /* U+2591 LIGHT SHADE ░ */
+#define BAR_FILL_CHAR "\xe2\x96\xa0"   /* U+25A0 BLACK SQUARE ■ */
+#define BAR_EMPTY_CHAR "\xe2\x96\xa1"  /* U+25A1 WHITE SQUARE □ */
 
 size_t num_of_lines(info_s *info_ptr, int cols) {
   (void)info_ptr;
@@ -79,12 +79,8 @@ static void render_progress_bar(info_s *info_ptr, progress_s *p) {
   /* Render bar */
   fprintf(stderr, "\r%s [", erase_after);
 
-  if (filled > 0) {
-    fprintf(stderr, "%s", ok_color);
-    for (int i = 0; i < filled; i++) {
-      fprintf(stderr, BAR_FILL_CHAR);
-    }
-    fprintf(stderr, "%s", end);
+  for (int i = 0; i < filled; i++) {
+    fprintf(stderr, BAR_FILL_CHAR);
   }
 
   for (int i = filled; i < bar_width; i++) {
