@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -17,16 +17,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SALDL_UTILS_H
-#define SALDL_UTILS_H
+#ifndef INFIDL_UTILS_H
+#define INFIDL_UTILS_H
 #else
-#error redefining SALDL_UTILS_H
+#error redefining INFIDL_UTILS_H
 #endif
 
 #include "write_modes.h"
 #include "merge.h"
 
-char* saldl_user_agent();
+char* infidl_user_agent();
 void chunks_init(info_s*);
 void check_remote_file_size(info_s*);
 void get_info(info_s*);
@@ -39,7 +39,7 @@ void set_params(thread_s *thread, info_s *info_ptr, char *url);
 void set_progress_params(thread_s*, info_s*);
 void set_single_mode(info_s*);
 void check_files_and_dirs(info_s *info_ptr);
-void saldl_perform(thread_s*);
+void infidl_perform(thread_s*);
 void* thread_func(void*);
 void curl_cleanup(info_s*);
 

@@ -1,11 +1,11 @@
-SALDL(1)
+INFIDL(1)
 =========
 :doctype: manpage
 
 NAME
 ----
 
-saldl - A lightweight well-featured CLI downloader optimized for speed and
+infidl - A lightweight well-featured CLI downloader optimized for speed and
 early preview.
 
 
@@ -123,7 +123,7 @@ General
       errors will become fatal.
 
   ::
-  If *-m/--memory-buffers* are used, saldl will not create or write to
+  If *-m/--memory-buffers* are used, infidl will not create or write to
   any files directly.
 
 *-m, --memory-buffers*::
@@ -425,7 +425,7 @@ ENVIRONMENT
 In addition to all environment variables affecting *libcurl(3)*.
 The following variable(s) can affect *{manname}*:
 
-*SALDL_EXTRA_ARGS*::
+*INFIDL_EXTRA_ARGS*::
   Append these arguments to argv.
 
 
@@ -500,12 +500,12 @@ EXIT STATUS
 WWW
 ----
 
-https://github.com/ManOfInfinity/saldl
+https://github.com/ManOfInfinity/infidl
 
 
 BUGS
 -----
-https://github.com/ManOfInfinity/saldl/issues
+https://github.com/ManOfInfinity/infidl/issues
 
 AUTHOR
 ------

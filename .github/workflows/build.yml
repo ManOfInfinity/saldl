@@ -30,8 +30,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-linux-x86_64
-          path: build/saldl
+          name: infidl-linux-x86_64
+          path: build/infidl
 
   build-linux-static:
     runs-on: ubuntu-latest
@@ -64,13 +64,13 @@ jobs:
         run: python3 waf build
 
       - name: Verify static binary
-        run: ls -lh build/saldl
+        run: ls -lh build/infidl
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-linux-x86_64-static
-          path: build/saldl
+          name: infidl-linux-x86_64-static
+          path: build/infidl
 
   build-macos:
     runs-on: macos-latest
@@ -93,8 +93,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-macos-arm64
-          path: build/saldl
+          name: infidl-macos-arm64
+          path: build/infidl
 
   build-windows:
     runs-on: windows-latest
@@ -131,11 +131,11 @@ jobs:
       - name: Collect DLLs
         run: |
           mkdir -p dist
-          cp build/saldl.exe dist/
-          ldd build/saldl.exe | grep ucrt64 | awk '{print $3}' | xargs -I{} cp {} dist/
+          cp build/infidl.exe dist/
+          ldd build/infidl.exe | grep ucrt64 | awk '{print $3}' | xargs -I{} cp {} dist/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-windows-x86_64
+          name: infidl-windows-x86_64
           path: dist/

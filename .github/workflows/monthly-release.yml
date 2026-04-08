@@ -31,14 +31,14 @@ jobs:
       - name: Package
         run: |
           mkdir -p release
-          cp build/saldl release/
-          tar -czf saldl-linux-x86_64.tar.gz -C release saldl
+          cp build/infidl release/
+          tar -czf infidl-linux-x86_64.tar.gz -C release infidl
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-linux-x86_64
-          path: saldl-linux-x86_64.tar.gz
+          name: infidl-linux-x86_64
+          path: infidl-linux-x86_64.tar.gz
 
   build-linux-static:
     runs-on: ubuntu-latest
@@ -73,14 +73,14 @@ jobs:
       - name: Package
         run: |
           mkdir -p release
-          cp build/saldl release/
-          tar -czf saldl-linux-x86_64-static.tar.gz -C release saldl
+          cp build/infidl release/
+          tar -czf infidl-linux-x86_64-static.tar.gz -C release infidl
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-linux-x86_64-static
-          path: saldl-linux-x86_64-static.tar.gz
+          name: infidl-linux-x86_64-static
+          path: infidl-linux-x86_64-static.tar.gz
 
   build-macos:
     runs-on: macos-latest
@@ -103,14 +103,14 @@ jobs:
       - name: Package
         run: |
           mkdir -p release
-          cp build/saldl release/
-          tar -czf saldl-macos-arm64.tar.gz -C release saldl
+          cp build/infidl release/
+          tar -czf infidl-macos-arm64.tar.gz -C release infidl
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-macos-arm64
-          path: saldl-macos-arm64.tar.gz
+          name: infidl-macos-arm64
+          path: infidl-macos-arm64.tar.gz
 
   build-windows:
     runs-on: windows-latest
@@ -147,18 +147,18 @@ jobs:
       - name: Collect DLLs
         run: |
           mkdir -p dist
-          cp build/saldl.exe dist/
-          ldd build/saldl.exe | grep ucrt64 | awk '{print $3}' | xargs -I{} cp {} dist/
+          cp build/infidl.exe dist/
+          ldd build/infidl.exe | grep ucrt64 | awk '{print $3}' | xargs -I{} cp {} dist/
 
       - name: Package
         shell: pwsh
-        run: Compress-Archive -Path dist/* -DestinationPath saldl-windows-x86_64.zip
+        run: Compress-Archive -Path dist/* -DestinationPath infidl-windows-x86_64.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: saldl-windows-x86_64
-          path: saldl-windows-x86_64.zip
+          name: infidl-windows-x86_64
+          path: infidl-windows-x86_64.zip
 
   release:
     needs: [build-linux, build-linux-static, build-macos, build-windows]
@@ -206,10 +206,10 @@ jobs:
           echo "### Artifacts" >> notes.md
           echo "| File | Description |" >> notes.md
           echo "|------|-------------|" >> notes.md
-          echo "| \`saldl-linux-x86_64.tar.gz\` | Linux dynamic (requires libcurl, libevent) |" >> notes.md
-          echo "| \`saldl-linux-x86_64-static.tar.gz\` | Linux static (zero dependencies) |" >> notes.md
-          echo "| \`saldl-macos-arm64.tar.gz\` | macOS ARM64 (requires libcurl, libevent) |" >> notes.md
-          echo "| \`saldl-windows-x86_64.zip\` | Windows x64 (exe + bundled DLLs) |" >> notes.md
+          echo "| \`infidl-linux-x86_64.tar.gz\` | Linux dynamic (requires libcurl, libevent) |" >> notes.md
+          echo "| \`infidl-linux-x86_64-static.tar.gz\` | Linux static (zero dependencies) |" >> notes.md
+          echo "| \`infidl-macos-arm64.tar.gz\` | macOS ARM64 (requires libcurl, libevent) |" >> notes.md
+          echo "| \`infidl-windows-x86_64.zip\` | Windows x64 (exe + bundled DLLs) |" >> notes.md
 
       - name: Delete existing nightly tag if present
         run: |
@@ -225,7 +225,7 @@ jobs:
           body_path: notes.md
           prerelease: true
           files: |
-            artifacts/saldl-linux-x86_64/saldl-linux-x86_64.tar.gz
-            artifacts/saldl-linux-x86_64-static/saldl-linux-x86_64-static.tar.gz
-            artifacts/saldl-macos-arm64/saldl-macos-arm64.tar.gz
-            artifacts/saldl-windows-x86_64/saldl-windows-x86_64.zip
+            artifacts/infidl-linux-x86_64/infidl-linux-x86_64.tar.gz
+            artifacts/infidl-linux-x86_64-static/infidl-linux-x86_64-static.tar.gz
+            artifacts/infidl-macos-arm64/infidl-macos-arm64.tar.gz
+            artifacts/infidl-windows-x86_64/infidl-windows-x86_64.zip

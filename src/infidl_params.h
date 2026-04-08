@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -17,10 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SALDL_PARAMS_H
-#define SALDL_PARAMS_H
+#ifndef INFIDL_PARAMS_H
+#define INFIDL_PARAMS_H
 #else
-#error redefining SALDL_PARAMS_H
+#error redefining INFIDL_PARAMS_H
 #endif
 
 #include <stdbool.h>
@@ -96,13 +96,13 @@ typedef struct {
   size_t timeout_low_speed;
   size_t timeout_low_speed_period;
   size_t timeout_connection_period;
-} saldl_params;
+} infidl_params;
 
 /* Static initializer.
  * This is unnecessary, but avoids some compilers' warnings.
  * Clang and old GCC versions found in the BSDs just don't get
  * that {0} initialization is perfectly valid (and complete in a sense).
  */
-static const saldl_params DEF_SALDL_PARAMS;
+static const infidl_params DEF_INFIDL_PARAMS;
 
 /* vim: set filetype=c ts=2 sw=2 et spell foldmethod=syntax: */

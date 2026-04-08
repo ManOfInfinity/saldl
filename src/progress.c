@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -42,8 +42,8 @@ bool exist_prg(info_s *info_ptr, enum CHUNK_PROGRESS prg, bool match) {
 chunk_s* prg_with_range(info_s *info_ptr, enum CHUNK_PROGRESS prg, bool match, size_t start, size_t end) {
   chunk_s *chunks = info_ptr->chunks;
 
-  SALDL_ASSERT(start < info_ptr->chunk_count);
-  SALDL_ASSERT(end < info_ptr->chunk_count);
+  INFIDL_ASSERT(start < info_ptr->chunk_count);
+  INFIDL_ASSERT(end < info_ptr->chunk_count);
 
   bool reverse;
 
@@ -75,12 +75,12 @@ chunk_s* prg_with_range(info_s *info_ptr, enum CHUNK_PROGRESS prg, bool match, s
 }
 
 chunk_s* first_prg_with_range(info_s *info_ptr, enum CHUNK_PROGRESS prg, bool match, size_t start, size_t end) {
-  SALDL_ASSERT(end >= start);
+  INFIDL_ASSERT(end >= start);
   return prg_with_range(info_ptr, prg, match, start, end);
 }
 
 chunk_s* last_prg_with_range(info_s *info_ptr, enum CHUNK_PROGRESS prg, bool match, size_t start, size_t end) {
-  SALDL_ASSERT(end <= start);
+  INFIDL_ASSERT(end <= start);
   return prg_with_range(info_ptr, prg, match, start, end);
 }
 

@@ -1,9 +1,9 @@
 ---
 name: Bug Report
-about: Report a bug in saldl
+about: Report a bug in infidl
 ---
 
-### saldl -v output
+### infidl -v output
 
 
 ### Describe the issue
@@ -16,5 +16,5 @@ about: Report a bug in saldl
 
 Increase verbosity and capture:
 ```
-saldl [arguments] -VVVVVV 2> saldl.log
+infidl [arguments] -VVVVVV 2> infidl.log
 ```

@@ -10,3 +10,8 @@ mingw*/*
 *.1
 .DS_Store
 .claude/
+reference/
+TODO.md
+error.log
+m3u8.py
+saldl_vt.py

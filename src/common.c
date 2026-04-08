@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -36,10 +36,10 @@
 
 void curl_set_ranges(CURL *handle, chunk_s *chunk) {
   char range_str[2 * s_num_digits(OFF_T_MAX) + 1];
-  SALDL_ASSERT(chunk->range_end);
-  SALDL_ASSERT( (uintmax_t)(chunk->range_end - chunk->range_start) <= (uintmax_t)SIZE_MAX );
+  INFIDL_ASSERT(chunk->range_end);
+  INFIDL_ASSERT( (uintmax_t)(chunk->range_end - chunk->range_start) <= (uintmax_t)SIZE_MAX );
   chunk->curr_range_start = chunk->range_start + (off_t)chunk->size_complete;
-  saldl_snprintf(false, range_str, 2 * s_num_digits(OFF_T_MAX) + 1, "%"SAL_JD"-%"SAL_JD"", (intmax_t)chunk->curr_range_start, (intmax_t)chunk->range_end);
+  infidl_snprintf(false, range_str, 2 * s_num_digits(OFF_T_MAX) + 1, "%"SAL_JD"-%"SAL_JD"", (intmax_t)chunk->curr_range_start, (intmax_t)chunk->range_end);
   curl_easy_setopt(handle, CURLOPT_RANGE, range_str);
 }
 
@@ -58,13 +58,13 @@ char* windows_exe_path() {
     *sep_pos = '\0';
   }
 
-  return saldl_strdup(path);
+  return infidl_strdup(path);
 }
 #endif
 
-char* saldl_lstrip(char *str) {
+char* infidl_lstrip(char *str) {
   char *tmp = str;
-  SALDL_ASSERT(tmp);
+  INFIDL_ASSERT(tmp);
 
   while (*tmp == ' ' || *tmp == '\t') {
     tmp++;
@@ -74,43 +74,43 @@ char* saldl_lstrip(char *str) {
 }
 
 /* 0 nmemb is banned, 0 size is banned */
-void* saldl_calloc(size_t nmemb, size_t size) {
+void* infidl_calloc(size_t nmemb, size_t size) {
   void *p = NULL;
-  SALDL_ASSERT(size);
-  SALDL_ASSERT(nmemb);
+  INFIDL_ASSERT(size);
+  INFIDL_ASSERT(nmemb);
   p = calloc(nmemb, size);
-  SALDL_ASSERT(p);
+  INFIDL_ASSERT(p);
   return p;
 }
 
 /* 0 size is banned */
-void* saldl_malloc(size_t size) {
+void* infidl_malloc(size_t size) {
   void *p = NULL;
-  SALDL_ASSERT(size);
+  INFIDL_ASSERT(size);
   p = malloc(size);
-  SALDL_ASSERT(p);
+  INFIDL_ASSERT(p);
   return p;
 }
 
 /* NULL ptr is banned, 0 size is banned */
-void* saldl_realloc(void *ptr, size_t size) {
+void* infidl_realloc(void *ptr, size_t size) {
   void *p = NULL;
-  SALDL_ASSERT(size);
-  SALDL_ASSERT(ptr);
+  INFIDL_ASSERT(size);
+  INFIDL_ASSERT(ptr);
   p = realloc(ptr, size);
-  SALDL_ASSERT(p);
+  INFIDL_ASSERT(p);
   return p;
 }
 
-char* saldl_strdup(const char *str) {
+char* infidl_strdup(const char *str) {
   char *dup = NULL;
-  SALDL_ASSERT(str);
+  INFIDL_ASSERT(str);
   dup = strdup(str);
-  SALDL_ASSERT(dup);
+  INFIDL_ASSERT(dup);
   return dup;
 }
 
-int saldl_strcmp(const char *s1, const char *s2) {
+int infidl_strcmp(const char *s1, const char *s2) {
   if (s1 && s2) {
     return strcmp(s1, s2);
   }
@@ -123,7 +123,7 @@ int saldl_strcmp(const char *s1, const char *s2) {
   }
 }
 
-int saldl_strcasecmp(const char *s1, const char *s2) {
+int infidl_strcasecmp(const char *s1, const char *s2) {
   if (s1 && s2) {
     return strcasecmp(s1, s2);
   }
@@ -136,9 +136,9 @@ int saldl_strcasecmp(const char *s1, const char *s2) {
   }
 }
 
-static size_t saldl_custom_headers_count(char **headers) {
+static size_t infidl_custom_headers_count(char **headers) {
   size_t count = 0;
-  SALDL_ASSERT(headers);
+  INFIDL_ASSERT(headers);
 
   while (headers[count]) {
     count++;
@@ -146,7 +146,7 @@ static size_t saldl_custom_headers_count(char **headers) {
   return count;
 }
 
-void saldl_custom_headers_free_all(char **headers) {
+void infidl_custom_headers_free_all(char **headers) {
   size_t idx = 0;
 
   if (!headers) {
@@ -154,20 +154,20 @@ void saldl_custom_headers_free_all(char **headers) {
   }
 
   while (headers[idx]) {
-    SALDL_FREE(headers[idx]);
+    INFIDL_FREE(headers[idx]);
     idx++;
   }
 
   /* Free the array itself */
-  SALDL_FREE(headers);
+  INFIDL_FREE(headers);
 }
 
-char** saldl_custom_headers_append(char **headers, char *headers_to_append) {
+char** infidl_custom_headers_append(char **headers, char *headers_to_append) {
   if (!headers) {
-    headers = saldl_calloc(1, sizeof(char*));
+    headers = infidl_calloc(1, sizeof(char*));
   }
 
-  SALDL_ASSERT(headers_to_append);
+  INFIDL_ASSERT(headers_to_append);
   char *curr, *next, *tmp;
   next = headers_to_append;
 
@@ -187,7 +187,7 @@ char** saldl_custom_headers_append(char **headers, char *headers_to_append) {
     else {
       /* make *next == '\0' */
       next = curr + strlen(curr);
-      SALDL_ASSERT(*next == '\0');
+      INFIDL_ASSERT(*next == '\0');
     }
 
     /* Check curr format before appending */
@@ -205,13 +205,13 @@ char** saldl_custom_headers_append(char **headers, char *headers_to_append) {
     }
 
     /* if curr is valid, append it to headers */
-    size_t curr_headers_size = saldl_custom_headers_count(headers) + 1; // +1 for NULL termination
-    SALDL_ASSERT(headers);
-    SALDL_ASSERT(curr_headers_size >= 1);
-    headers = saldl_realloc(headers, (curr_headers_size+1) * sizeof(char*));
+    size_t curr_headers_size = infidl_custom_headers_count(headers) + 1; // +1 for NULL termination
+    INFIDL_ASSERT(headers);
+    INFIDL_ASSERT(curr_headers_size >= 1);
+    headers = infidl_realloc(headers, (curr_headers_size+1) * sizeof(char*));
 
     debug_msg(FN, "Appending custom header: '%s'", curr);
-    headers[curr_headers_size - 1] = saldl_strdup(curr);
+    headers[curr_headers_size - 1] = infidl_strdup(curr);
     headers[curr_headers_size] = NULL;
   }
 
@@ -219,10 +219,10 @@ char** saldl_custom_headers_append(char **headers, char *headers_to_append) {
   return headers;
 }
 
-void saldl_fflush(const char *label, FILE *f) {
+void infidl_fflush(const char *label, FILE *f) {
   int ret;
-  SALDL_ASSERT(label);
-  SALDL_ASSERT(f);
+  INFIDL_ASSERT(label);
+  INFIDL_ASSERT(f);
 
   ret = fflush(f);
 
@@ -231,17 +231,17 @@ void saldl_fflush(const char *label, FILE *f) {
   }
 }
 
-void saldl_fwrite_fflush(const void *read_buf, size_t size, size_t nmemb, FILE *out_file, const char *out_name, off_t offset_info) {
+void infidl_fwrite_fflush(const void *read_buf, size_t size, size_t nmemb, FILE *out_file, const char *out_name, off_t offset_info) {
   size_t ret;
   size_t write_size;
 
-  SALDL_ASSERT(read_buf);
-  SALDL_ASSERT(size);
-  SALDL_ASSERT(nmemb);
-  SALDL_ASSERT(size * nmemb <= SIZE_MAX);
-  SALDL_ASSERT(out_file);
+  INFIDL_ASSERT(read_buf);
+  INFIDL_ASSERT(size);
+  INFIDL_ASSERT(nmemb);
+  INFIDL_ASSERT(size * nmemb <= SIZE_MAX);
+  INFIDL_ASSERT(out_file);
 
-  saldl_fflush(out_name, out_file);
+  infidl_fflush(out_name, out_file);
 
   ret = fwrite(read_buf, size, nmemb, out_file);
   write_size = size * nmemb;
@@ -257,13 +257,13 @@ void saldl_fwrite_fflush(const void *read_buf, size_t size, size_t nmemb, FILE *
     }
   }
 
-  saldl_fflush(out_name, out_file);
+  infidl_fflush(out_name, out_file);
 }
 
-void saldl_fclose(const char *label, FILE *f) {
+void infidl_fclose(const char *label, FILE *f) {
   int ret;
-  SALDL_ASSERT(label);
-  SALDL_ASSERT(f);
+  INFIDL_ASSERT(label);
+  INFIDL_ASSERT(f);
 
   ret = fclose(f);
 
@@ -272,10 +272,10 @@ void saldl_fclose(const char *label, FILE *f) {
   }
 }
 
-void saldl_fseeko(const char *label, FILE *f, off_t offset, int whence) {
+void infidl_fseeko(const char *label, FILE *f, off_t offset, int whence) {
   int ret;
-  SALDL_ASSERT(label);
-  SALDL_ASSERT(f);
+  INFIDL_ASSERT(label);
+  INFIDL_ASSERT(f);
 
   ret = fseeko(f, offset, whence);
 
@@ -284,11 +284,11 @@ void saldl_fseeko(const char *label, FILE *f, off_t offset, int whence) {
   }
 }
 
-off_t saldl_ftello(const char *label, FILE *f) {
+off_t infidl_ftello(const char *label, FILE *f) {
   off_t ret;
 
-  SALDL_ASSERT(label);
-  SALDL_ASSERT(f);
+  INFIDL_ASSERT(label);
+  INFIDL_ASSERT(f);
 
   ret = ftello(f);
 
@@ -299,38 +299,38 @@ off_t saldl_ftello(const char *label, FILE *f) {
   return ret;
 }
 
-off_t saldl_fsizeo(const char *label, FILE *f) {
+off_t infidl_fsizeo(const char *label, FILE *f) {
   off_t curr;
   off_t size;
 
-  SALDL_ASSERT(label);
-  SALDL_ASSERT(f);
+  INFIDL_ASSERT(label);
+  INFIDL_ASSERT(f);
 
-  curr = saldl_ftello(label, f);
-  saldl_fseeko(label, f, 0, SEEK_END);
-  size = saldl_ftello(label, f);
-  saldl_fseeko(label, f, curr, SEEK_SET);
+  curr = infidl_ftello(label, f);
+  infidl_fseeko(label, f, 0, SEEK_END);
+  size = infidl_ftello(label, f);
+  infidl_fseeko(label, f, curr, SEEK_SET);
   return size;
 }
 
-off_t saldl_fsize_sys(char *file_path) {
+off_t infidl_fsize_sys(char *file_path) {
   int ret;
   struct stat st;
-  SALDL_ASSERT(file_path);
+  INFIDL_ASSERT(file_path);
   ret = stat(file_path, &st);
   return ret ? ret : st.st_size;
 }
 
-time_t saldl_file_mtime(char *file_path) {
+time_t infidl_file_mtime(char *file_path) {
   int ret;
   struct stat st;
-  SALDL_ASSERT(file_path);
+  INFIDL_ASSERT(file_path);
   ret = stat(file_path, &st);
   return ret ? (time_t)ret : st.st_mtime;
 }
 
-int saldl_mkdir(const char *path, mode_t mode) {
-  SALDL_ASSERT(path);
+int infidl_mkdir(const char *path, mode_t mode) {
+  INFIDL_ASSERT(path);
 #ifdef HAVE__MKDIR
   (void) mode;
   return _mkdir(path);
@@ -341,7 +341,7 @@ int saldl_mkdir(const char *path, mode_t mode) {
 #endif
 }
 
-void saldl_pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg) {
+void infidl_pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg) {
   int ret = pthread_create(thread, attr, start_routine, arg);
 
   if (ret) {
@@ -350,7 +350,7 @@ void saldl_pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(
   }
 }
 
-void saldl_pthread_join_accept_einval(pthread_t thread, void **retval) {
+void infidl_pthread_join_accept_einval(pthread_t thread, void **retval) {
   int ret;
 
   while (1) {
@@ -360,7 +360,7 @@ void saldl_pthread_join_accept_einval(pthread_t thread, void **retval) {
       case 0:
         return;
       case EINVAL:
-        /* If download completed, and saldl was interrupted, it's
+        /* If download completed, and infidl was interrupted, it's
          * possible that exit_routine() would be called while joining
          * a thread. Re-joining that thread would fail with EINVAL.
          * So we consider this non-fatal. And only issue a warning. */
@@ -373,9 +373,9 @@ void saldl_pthread_join_accept_einval(pthread_t thread, void **retval) {
 
 }
 
-void saldl_pthread_mutex_lock_retry_deadlock(pthread_mutex_t *mutex) {
+void infidl_pthread_mutex_lock_retry_deadlock(pthread_mutex_t *mutex) {
   int ret;
-  SALDL_ASSERT(mutex);
+  INFIDL_ASSERT(mutex);
 
   while(1) {
 
@@ -395,9 +395,9 @@ void saldl_pthread_mutex_lock_retry_deadlock(pthread_mutex_t *mutex) {
 
 }
 
-void saldl_pthread_mutex_unlock(pthread_mutex_t *mutex) {
+void infidl_pthread_mutex_unlock(pthread_mutex_t *mutex) {
   int ret;
-  SALDL_ASSERT(mutex);
+  INFIDL_ASSERT(mutex);
 
   /* Note: PTHREAD_MUTEX_ERRORCHECK attr is set */
   ret = pthread_mutex_unlock(mutex);
@@ -408,9 +408,9 @@ void saldl_pthread_mutex_unlock(pthread_mutex_t *mutex) {
 }
 
 #ifdef HAVE_SIGACTION
-void saldl_sigaction(int sig, const struct sigaction *restrict act, struct sigaction *restrict oact) {
+void infidl_sigaction(int sig, const struct sigaction *restrict act, struct sigaction *restrict oact) {
   int ret;
-  SALDL_ASSERT(act || oact);
+  INFIDL_ASSERT(act || oact);
 
   ret = sigaction(sig, act, oact);
 
@@ -419,9 +419,9 @@ void saldl_sigaction(int sig, const struct sigaction *restrict act, struct sigac
   }
 }
 
-static void saldl_pthread_sigmask(int how, const sigset_t *set, sigset_t *oldset) {
+static void infidl_pthread_sigmask(int how, const sigset_t *set, sigset_t *oldset) {
   int ret;
-  SALDL_ASSERT(set || oldset);
+  INFIDL_ASSERT(set || oldset);
 
   ret = pthread_sigmask(how, set, oldset);
 
@@ -430,9 +430,9 @@ static void saldl_pthread_sigmask(int how, const sigset_t *set, sigset_t *oldset
   }
 }
 #else
-void saldl_win_signal(int signum, void (*handler)(int)) {
+void infidl_win_signal(int signum, void (*handler)(int)) {
   void (*ret)(int);
-  SALDL_ASSERT(handler);
+  INFIDL_ASSERT(handler);
 
   ret = signal(signum, handler);
 
@@ -443,9 +443,9 @@ void saldl_win_signal(int signum, void (*handler)(int)) {
 #endif
 
 #ifdef HAVE_SIGADDSET
-void saldl_sigaddset(sigset_t *set, int signum) {
+void infidl_sigaddset(sigset_t *set, int signum) {
   int ret;
-  SALDL_ASSERT(set);
+  INFIDL_ASSERT(set);
 
   ret = sigaddset(set, signum);
 
@@ -454,9 +454,9 @@ void saldl_sigaddset(sigset_t *set, int signum) {
   }
 }
 
-void saldl_sigemptyset(sigset_t *set) {
+void infidl_sigemptyset(sigset_t *set) {
   int ret;
-  SALDL_ASSERT(set);
+  INFIDL_ASSERT(set);
 
   ret = sigemptyset(set);
 
@@ -466,23 +466,23 @@ void saldl_sigemptyset(sigset_t *set) {
 }
 #endif
 
-void saldl_block_sig_pth() {
+void infidl_block_sig_pth() {
 #ifdef HAVE_SIGADDSET
   /* Don't interrupt thread, Let the signal handler work properly */
   sigset_t set;
-  saldl_sigemptyset(&set);
-  saldl_sigaddset(&set, SIGINT);
-  saldl_sigaddset(&set, SIGTERM);
-  saldl_pthread_sigmask(SIG_SETMASK, &set, NULL);
+  infidl_sigemptyset(&set);
+  infidl_sigaddset(&set, SIGINT);
+  infidl_sigaddset(&set, SIGTERM);
+  infidl_pthread_sigmask(SIG_SETMASK, &set, NULL);
 #endif
 }
 
-void saldl_unblock_sig_pth() {
+void infidl_unblock_sig_pth() {
 #ifdef HAVE_SIGADDSET
   /* Unblock any blocked signals, */
   sigset_t set;
-  saldl_sigemptyset(&set);
-  saldl_pthread_sigmask(SIG_SETMASK, &set, NULL);
+  infidl_sigemptyset(&set);
+  infidl_pthread_sigmask(SIG_SETMASK, &set, NULL);
 
 #endif
 }
@@ -490,18 +490,18 @@ void saldl_unblock_sig_pth() {
 #ifdef HAVE_SIGACTION
 void ignore_sig(int sig, struct sigaction *sa_save) {
   struct sigaction sa_ign;
-  saldl_sigaction(sig, NULL, sa_save);
+  infidl_sigaction(sig, NULL, sa_save);
   sa_ign = *sa_save;
   sa_ign.sa_handler = SIG_IGN;
-  saldl_sigaction(sig, &sa_ign, NULL);
+  infidl_sigaction(sig, &sa_ign, NULL);
 }
 
 void restore_sig_handler(int sig, struct sigaction *sa_restore) {
-  saldl_sigaction(sig, sa_restore, NULL);
+  infidl_sigaction(sig, sa_restore, NULL);
 }
 #endif
 
-void saldl_snprintf(bool allow_truncation, char *str, size_t size, const char *format, ...) {
+void infidl_snprintf(bool allow_truncation, char *str, size_t size, const char *format, ...) {
   if (format) {
     va_list args;
     va_start(args, format);
@@ -520,13 +520,13 @@ void saldl_snprintf(bool allow_truncation, char *str, size_t size, const char *f
   }
 }
 
-void saldl_fputc(int c, FILE *stream, const char *label) {
+void infidl_fputc(int c, FILE *stream, const char *label) {
   int ret;
 
-  SALDL_ASSERT(c >= 0);
-  SALDL_ASSERT(c <= CHAR_MAX);
-  SALDL_ASSERT(stream);
-  SALDL_ASSERT(label);
+  INFIDL_ASSERT(c >= 0);
+  INFIDL_ASSERT(c <= CHAR_MAX);
+  INFIDL_ASSERT(stream);
+  INFIDL_ASSERT(label);
 
   ret = fputc(c, stream);
 
@@ -535,12 +535,12 @@ void saldl_fputc(int c, FILE *stream, const char *label) {
   }
 }
 
-void saldl_fputs(const char *str, FILE *stream, const char *label) {
+void infidl_fputs(const char *str, FILE *stream, const char *label) {
   int ret;
 
-  SALDL_ASSERT(str);
-  SALDL_ASSERT(stream);
-  SALDL_ASSERT(label);
+  INFIDL_ASSERT(str);
+  INFIDL_ASSERT(stream);
+  INFIDL_ASSERT(label);
 
   ret = fputs(str, stream);
   if (ret == EOF) {
@@ -548,13 +548,13 @@ void saldl_fputs(const char *str, FILE *stream, const char *label) {
   }
 }
 
-void saldl_fputs_count(uintmax_t count, const char* str, FILE* stream, const char *label) {
-  SALDL_ASSERT(str);
-  SALDL_ASSERT(stream);
-  SALDL_ASSERT(label);
+void infidl_fputs_count(uintmax_t count, const char* str, FILE* stream, const char *label) {
+  INFIDL_ASSERT(str);
+  INFIDL_ASSERT(stream);
+  INFIDL_ASSERT(label);
 
   for (uintmax_t loops = 1; loops <= count; loops++) {
-    saldl_fputs(str, stream, label);
+    infidl_fputs(str, stream, label);
   }
 }
 
@@ -597,19 +597,19 @@ size_t u_num_digits(uintmax_t num) {
   return len;
 }
 
-size_t saldl_min(size_t a, size_t b) {
+size_t infidl_min(size_t a, size_t b) {
   return a < b ? a : b;
 }
 
-size_t saldl_max(size_t a, size_t b) {
+size_t infidl_max(size_t a, size_t b) {
   return a > b ? a : b;
 }
 
-off_t saldl_max_o(off_t a, off_t b) {
+off_t infidl_max_o(off_t a, off_t b) {
   return a > b ? a : b;
 }
 
-size_t saldl_max_z_umax(uintmax_t a, uintmax_t b) {
+size_t infidl_max_z_umax(uintmax_t a, uintmax_t b) {
   uintmax_t ret = a > b ? a : b;
   if ((intmax_t)ret < 0 || ret > (uintmax_t)SIZE_MAX) {
     fatal(FN, "Max value %"SAL_JD" is out of size_t range 0-%"SAL_ZU".", (intmax_t)ret, SIZE_MAX);
@@ -617,10 +617,10 @@ size_t saldl_max_z_umax(uintmax_t a, uintmax_t b) {
   return (size_t)ret;
 }
 
-char* saldl_getcwd(char *buf, size_t size) {
+char* infidl_getcwd(char *buf, size_t size) {
   char *ret = NULL;
-  SALDL_ASSERT(buf);
-  SALDL_ASSERT(size);
+  INFIDL_ASSERT(buf);
+  INFIDL_ASSERT(size);
 
   ret = getcwd(buf, size);
   if (!ret) {
@@ -633,9 +633,9 @@ char* saldl_getcwd(char *buf, size_t size) {
 char* valid_filename(const char *pre_valid) {
   char *corrected_name;
 
-  SALDL_ASSERT(pre_valid);
+  INFIDL_ASSERT(pre_valid);
 
-  corrected_name = saldl_strdup(pre_valid);
+  corrected_name = infidl_strdup(pre_valid);
   while ( strchr(corrected_name,'/') ) {
     memset(strchr(corrected_name,'/') , '_', 1);
   }
@@ -656,10 +656,10 @@ char* trunc_filename(const char *pre_trunc, int keep_ext) {
   char *ext_str, *ext_str_empty;
   size_t ext_len = 0;
 
-  SALDL_ASSERT(pre_trunc);
-  trunc_name = saldl_strdup(pre_trunc); /* allocates enough bits */
+  INFIDL_ASSERT(pre_trunc);
+  trunc_name = infidl_strdup(pre_trunc); /* allocates enough bits */
 
-  pre_trunc_copy = saldl_strdup(pre_trunc);
+  pre_trunc_copy = infidl_strdup(pre_trunc);
   tmp_dirname = dirname(pre_trunc_copy);
   if ( tmp_dirname[0] != '.' ) {
 
@@ -668,36 +668,36 @@ char* trunc_filename(const char *pre_trunc, int keep_ext) {
       fatal(FN, "dirname '%s' is too long.", tmp_dirname);
     }
 
-    saldl_snprintf(false, dir_name,PATH_MAX,"%s/", tmp_dirname);
+    infidl_snprintf(false, dir_name,PATH_MAX,"%s/", tmp_dirname);
   }
-  SALDL_FREE(pre_trunc_copy);
+  INFIDL_FREE(pre_trunc_copy);
 
-  ext_str = ext_str_empty = saldl_strdup("");
+  ext_str = ext_str_empty = infidl_strdup("");
   if (keep_ext) {
     ext_str = strrchr(pre_trunc, '.');
     if (!ext_str) ext_str = ext_str_empty;
     ext_len = strlen(ext_str);
   }
 
-  pre_trunc_copy = saldl_strdup(pre_trunc);
+  pre_trunc_copy = infidl_strdup(pre_trunc);
   tmp_basename = basename(pre_trunc_copy);
   tmp_basename[ strlen(tmp_basename) - ext_len ] = '\0';
-  base_name = saldl_strdup(tmp_basename);
+  base_name = infidl_strdup(tmp_basename);
 
   if (ext_len >= NAME_MAX - SUFFIX_LEN) {
     fatal(FN, "Extension '%s' is too long.", ext_str);
   }
-  saldl_snprintf(true, base_name,NAME_MAX-SUFFIX_LEN-ext_len,"%s", tmp_basename);
-  SALDL_FREE(pre_trunc_copy);
+  infidl_snprintf(true, base_name,NAME_MAX-SUFFIX_LEN-ext_len,"%s", tmp_basename);
+  INFIDL_FREE(pre_trunc_copy);
 
-  saldl_snprintf(false, trunc_name,
+  infidl_snprintf(false, trunc_name,
       PATH_MAX - SUFFIX_LEN - u_num_digits(SIZE_MAX) - (dir_name[0]=='/'?0:strlen(getcwd(cwd,PATH_MAX))+1),
       "%s%s%s",
       dir_name,
       base_name,
       ext_str);
-  SALDL_FREE(base_name);
-  SALDL_FREE(ext_str_empty);
+  INFIDL_FREE(base_name);
+  INFIDL_FREE(ext_str_empty);
   return trunc_name;
 }
 
@@ -705,7 +705,7 @@ size_t parse_num_d(const char *num_char) {
   double num;
   char *p[1]; /* **p must be initialized and not NULL */
 
-  SALDL_ASSERT(num_char);
+  INFIDL_ASSERT(num_char);
   num = strtod(num_char, p);
 
   if (strlen(*p)) {
@@ -727,7 +727,7 @@ size_t parse_num_z(const char *num_char, size_t suff_len) {
   uintmax_t num;
   char *p[1]; /* **p must be initialized and not NULL */
 
-  SALDL_ASSERT(num_char);
+  INFIDL_ASSERT(num_char);
   num = strtoumax(num_char, p, 10);
 
   if ((intmax_t)num < 0) {
@@ -773,7 +773,7 @@ off_t parse_num_o(const char *num_char, size_t suff_len) {
   intmax_t num;
   char *p[1]; /* **p must be initialized and not NULL */
 
-  SALDL_ASSERT(num_char);
+  INFIDL_ASSERT(num_char);
   num = strtoimax(num_char, p, 10);
 
   if (num < 0) {

@@ -1,10 +1,10 @@
 /*
-    This file is a part of saldl.
+    This file is a part of infidl.
 
     Copyright (C) 2026 ManOfInfinity <https://github.com/ManOfInfinity>
-    https://github.com/ManOfInfinity/saldl
+    https://github.com/ManOfInfinity/infidl
 
-    saldl is free software: you can redistribute it and/or modify
+    infidl is free software: you can redistribute it and/or modify
     it under the terms of the Affero GNU General Public License as
     published by the Free Software Foundation.
 
@@ -17,15 +17,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SALDL_WRITE_MODE_H
-#define SALDL_WRITE_MODE_H
+#ifndef INFIDL_WRITE_MODE_H
+#define INFIDL_WRITE_MODE_H
 #else
-#error redefining SALDL_WRITE_MODE_H
+#error redefining INFIDL_WRITE_MODE_H
 #endif
 
 #include "common.h"
 
 void set_modes(info_s *info_ptr);
-void set_write_opts(CURL* handle, void* storage, saldl_params *params_ptr, bool no_body);
+void set_write_opts(CURL* handle, void* storage, infidl_params *params_ptr, bool no_body);
 
 /* vim: set filetype=c ts=2 sw=2 et spell foldmethod=syntax: */
