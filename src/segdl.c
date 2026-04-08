@@ -296,8 +296,17 @@ static int download_one_segment(segdl_params_s *params, const char *url,
     curl_easy_cleanup(curl);
     fclose(fp);
 
-    if (res == CURLE_OK && http_code < 400) {
+    if (res == CURLE_OK && http_code < 400 && dl_size > 0) {
       return 0;
+    }
+
+    /* Log failure */
+    if (res != CURLE_OK) {
+      fprintf(stderr, "\n[segdl] ERR: %s — %s\n", output_path, curl_easy_strerror(res));
+    } else if (http_code >= 400) {
+      fprintf(stderr, "\n[segdl] ERR: %s — HTTP %ld\n", output_path, http_code);
+    } else {
+      fprintf(stderr, "\n[segdl] ERR: %s — 0 bytes received (HTTP %ld)\n", output_path, http_code);
     }
 
     /* Remove failed partial file */
